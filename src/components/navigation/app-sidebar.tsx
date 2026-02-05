@@ -31,8 +31,8 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Shahzeb",
+    email: "shahzeb@gmail.com",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
@@ -42,7 +42,7 @@ const data = {
       plan: "Enterprise",
     },
     {
-      name: "Airtel",
+      name: "Telenor Pakistan",
       logo: Smartphone,
       plan: "Startup",
     },
@@ -54,63 +54,75 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Inventory",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Add/view Stock",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "Manual Stock Adjustment",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "Bulk Stock Adjustment",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Products",
       url: "#",
       icon: Bot,
       items: [
         {
-          title: "Genesis",
+          title: "Add/view Product",
+          url: "/",
+        },
+        {
+          title: "Product Variants",
           url: "#",
         },
         {
-          title: "Explorer",
+          title: "Product Categories",
           url: "#",
         },
         {
-          title: "Quantum",
+          title: "Brands",
+          url: "#",
+        },
+        {
+          title: "Suppliers and logistics",
+          url: "#",
+        },
+        {
+          title: "Product Bundles",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Retailers",
       url: "#",
       icon: BookOpen,
       items: [
         {
-          title: "Introduction",
+          title: "Add/view Retailer",
           url: "#",
         },
         {
-          title: "Get Started",
+          title: "Retailer Management",
           url: "#",
         },
         {
-          title: "Tutorials",
+          title: "Retailer Sales",
           url: "#",
         },
         {
-          title: "Changelog",
+          title: "Retailer Onboarding",
           url: "#",
         },
       ],
