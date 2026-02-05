@@ -10,10 +10,15 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-export function NotificationDrawer({ RenderTrigger }: { RenderTrigger: React.ReactNode }) {
+export function NotificationDrawer({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   return (
-    <Drawer direction='right'>
-      <DrawerTrigger asChild>{RenderTrigger}</DrawerTrigger>
+    <Drawer direction='right' open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Move Goal</DrawerTitle>
