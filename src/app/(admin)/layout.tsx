@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { ThemeProvider } from "@/components/Theme/theme-provider";
+import { NotificationDrawer } from "@/components/notifications/notification-drawer";
 
 import "@/app/globals.css";
 
