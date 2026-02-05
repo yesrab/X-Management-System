@@ -12,6 +12,8 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  CardSim,
+  Smartphone,
 } from "lucide-react";
 
 import { NavMain } from "@/components/navigation/nav-main";
@@ -35,17 +37,17 @@ const data = {
   },
   teams: [
     {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
+      name: "Grameenphone",
+      logo: CardSim,
       plan: "Enterprise",
     },
     {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
+      name: "Airtel",
+      logo: Smartphone,
       plan: "Startup",
     },
     {
-      name: "Evil Corp.",
+      name: "Robi",
       logo: Command,
       plan: "Free",
     },

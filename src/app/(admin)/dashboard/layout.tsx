@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Welcome to X Management System",
-  description: "Management and distribution system for X",
+  title: "X Management Dashboard",
+  description: "Dashboard for X Management System",
 };
 
 export default function RootLayout({
