@@ -16,7 +16,7 @@
   "lang": "en-US",
   "name": "X Management System",
   "short_name": "EDU+",
-  "start_url": "http://localhost:3000/",
-  "scope": "http://localhost:3000/",
-  "id": "http://localhost:3000/"
+  "start_url": "https://x-management-system.vercel.app/",
+  "scope": "https://x-management-system.vercel.app/",
+  "id": "https://x-management-system.vercel.app/"
 }
