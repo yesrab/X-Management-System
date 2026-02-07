@@ -89,11 +89,18 @@ export const Header = () => {
               </nav>
             </SheetContent>
           </Sheet>
-          <Button variant='ghost' size='sm' className='hidden md:inline-flex h-8 sm:h-9 text-sm'>
-            Login
+          <Button
+            asChild
+            variant='ghost'
+            size='sm'
+            className='hidden md:inline-flex h-8 sm:h-9 text-sm'>
+            <Link href='/login'>Login</Link>
           </Button>
-          <Button size='sm' className='hidden md:inline-flex h-8 sm:h-9 text-sm px-3 sm:px-4'>
-            Get Started
+          <Button
+            asChild
+            size='sm'
+            className='hidden md:inline-flex h-8 sm:h-9 text-sm px-3 sm:px-4'>
+            <Link href='/signup'>Get Started</Link>
           </Button>
           <ModeToggle />
         </div>
