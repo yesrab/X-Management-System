@@ -18,7 +18,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "X Management System | Schools, Colleges & Universities",
-  description: "Unified management platform for educational institutions—students, courses, faculty, and administration in one place.",
+  description:
+    "Unified management platform for educational institutions—students, courses, faculty, and administration in one place.",
 };
 
 export default function RootLayout({
@@ -27,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang='en' suppressHydrationWarning className='scroll-smooth'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider
           attribute='class'
