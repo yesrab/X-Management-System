@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Welcome to X Management System",
-  description: "Management and distribution system for X",
+  title: "X Management System | Schools, Colleges & Universities",
+  description: "Unified management platform for educational institutions—students, courses, faculty, and administration in one place.",
 };
 
 export default function RootLayout({

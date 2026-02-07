@@ -1,0 +1,22 @@
+{
+  "theme_color": "#000000",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "public/icon512_maskable.png",
+      "type": "image/png"
+    },
+    { "purpose": "any", "sizes": "512x512", "src": "icon512_rounded.png", "type": "image/png" }
+  ],
+  "orientation": "portrait",
+  "display": "standalone",
+  "dir": "auto",
+  "lang": "en-US",
+  "name": "X Management System",
+  "short_name": "EDU+",
+  "start_url": "http://localhost:3000/",
+  "scope": "http://localhost:3000/",
+  "id": "http://localhost:3000/"
+}
