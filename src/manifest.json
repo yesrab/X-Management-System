@@ -16,7 +16,7 @@
   "lang": "en-US",
   "name": "X Management System",
   "short_name": "EDU+",
-  "start_url": "https://x-management-system.vercel.app/",
-  "scope": "https://x-management-system.vercel.app/",
-  "id": "https://x-management-system.vercel.app/"
+  "start_url": "https://x-management-system.vercel.app/dashboard",
+  "scope": "https://x-management-system.vercel.app/dashboard",
+  "id": "https://x-management-system.vercel.app/dashboard"
 }
