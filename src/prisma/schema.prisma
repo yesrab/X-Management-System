@@ -42,7 +42,7 @@ model ModuleFeature {
 model Policy {
   id                Int      @id @default(autoincrement())
   policyName        String
-  policyDescription String   @db.VarChar(5000)
+  description       String?   @db.VarChar(5000)
   metaDataRef       String?
 
   featureLists      FeatureCollection[]
@@ -66,13 +66,13 @@ model FeatureCollection {
 
 model CollectionFeatureMap {
   id              Int @id @default(autoincrement())
-  featureListId   Int
+  collectionId   Int
   moduleFeatureId Int
 
-  featureCollection   FeatureCollection  @relation(fields: [featureListId], references: [id], onDelete: Cascade)
+  featureCollection   FeatureCollection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   moduleFeature ModuleFeature @relation(fields: [moduleFeatureId], references: [id], onDelete: Cascade)
 
-  @@unique([featureListId, moduleFeatureId])
+  @@unique([collectionId, moduleFeatureId])
 }
 
 model User {
@@ -89,6 +89,8 @@ model User {
 
   userType   UserType   @relation(fields: [userTypeId], references: [id], onDelete: Cascade)
   status     UserStatus @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  @@index([userTypeId , userId])
 }
 
 model UserType {
