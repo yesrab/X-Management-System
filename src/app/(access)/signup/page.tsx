@@ -1,4 +1,10 @@
 import { SignupForm } from "@/components/access/signup-form";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sign up | X Management System",
+  description: "Login to your X Management System account to access your dashboard.",
+};
 
 export default function SignupPage() {
   return (

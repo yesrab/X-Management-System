@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FeatureType {
+  ROUTE
+  COMPONENT
+  API
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+  OPTIONS
+  HEAD
+}
+
+model ModuleFeature {
+  id            Int      @id @default(autoincrement())
+  permissionKey String   @unique
+  type          FeatureType
+  method        HttpMethod?
+  metaDataRef   String?
+
+  featureLists  CollectionFeatureMap[]
+}
+
+model Policy {
+  id                Int      @id @default(autoincrement())
+  policyName        String
+  policyDescription String   @db.VarChar(5000)
+  metaDataRef       String?
+
+  featureLists      FeatureCollection[]
+  userTypes         UserType[]
+
+  @@index([policyName])
+}
+
+model FeatureCollection {
+  id          Int      @id @default(autoincrement())
+  name        String @unique
+  description String?  @db.VarChar(5000)
+  policyId    Int
+  metaDataRef String?
+
+  policy      Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  features    CollectionFeatureMap[]
+
+  @@index([name , policyId])
+}
+
+model CollectionFeatureMap {
+  id              Int @id @default(autoincrement())
+  featureListId   Int
+  moduleFeatureId Int
+
+  featureCollection   FeatureCollection  @relation(fields: [featureListId], references: [id], onDelete: Cascade)
+  moduleFeature ModuleFeature @relation(fields: [moduleFeatureId], references: [id], onDelete: Cascade)
+
+  @@unique([featureListId, moduleFeatureId])
+}
+
+model User {
+  id                     Int      @id @default(autoincrement())
+  userId                 String   @unique
+  userTypeId             Int
+  statusId               Int
+  systemToken            String?
+  incorrectLoginAttempts Int
+  maxLoginAttempts       Int
+  currentActiveLogins    Json?
+  maxActiveLogins        Int
+  metaDataRef            String?
+
+  userType   UserType   @relation(fields: [userTypeId], references: [id], onDelete: Cascade)
+  status     UserStatus @relation(fields: [statusId], references: [id], onDelete: Cascade)
+}
+
+model UserType {
+  id           Int      @id @default(autoincrement())
+  userType     String   @unique
+  userPolicyId Int
+  metaDataRef  String?
+
+  policy  Policy @relation(fields: [userPolicyId], references: [id], onDelete: Cascade)
+  users   User[]
+}
+
+model UserStatus {
+  id          Int      @id @default(autoincrement())
+  status      String   @unique
+  metaDataRef String?
+
+  users       User[]
+}
