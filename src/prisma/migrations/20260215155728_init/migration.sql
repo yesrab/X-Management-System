@@ -19,20 +19,30 @@ CREATE TABLE "ModuleFeature" (
 CREATE TABLE "Policy" (
     "id" SERIAL NOT NULL,
     "policyName" TEXT NOT NULL,
-    "policyDescription" VARCHAR(5000) NOT NULL,
+    "description" VARCHAR(5000),
     "metaDataRef" TEXT,
 
     CONSTRAINT "Policy_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "PolicyFeatureMap" (
+CREATE TABLE "FeatureCollection" (
     "id" SERIAL NOT NULL,
-    "permissionKeyId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" VARCHAR(5000),
     "policyId" INTEGER NOT NULL,
     "metaDataRef" TEXT,
 
-    CONSTRAINT "PolicyFeatureMap_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "FeatureCollection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CollectionFeatureMap" (
+    "id" SERIAL NOT NULL,
+    "collectionId" INTEGER NOT NULL,
+    "moduleFeatureId" INTEGER NOT NULL,
+
+    CONSTRAINT "CollectionFeatureMap_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -77,10 +87,19 @@ CREATE UNIQUE INDEX "ModuleFeature_permissionKey_key" ON "ModuleFeature"("permis
 CREATE INDEX "Policy_policyName_idx" ON "Policy"("policyName");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "PolicyFeatureMap_permissionKeyId_policyId_key" ON "PolicyFeatureMap"("permissionKeyId", "policyId");
+CREATE UNIQUE INDEX "FeatureCollection_name_key" ON "FeatureCollection"("name");
+
+-- CreateIndex
+CREATE INDEX "FeatureCollection_name_policyId_idx" ON "FeatureCollection"("name", "policyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CollectionFeatureMap_collectionId_moduleFeatureId_key" ON "CollectionFeatureMap"("collectionId", "moduleFeatureId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_userId_key" ON "User"("userId");
+
+-- CreateIndex
+CREATE INDEX "User_userTypeId_userId_idx" ON "User"("userTypeId", "userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserType_userType_key" ON "UserType"("userType");
@@ -89,10 +108,13 @@ CREATE UNIQUE INDEX "UserType_userType_key" ON "UserType"("userType");
 CREATE UNIQUE INDEX "UserStatus_status_key" ON "UserStatus"("status");
 
 -- AddForeignKey
-ALTER TABLE "PolicyFeatureMap" ADD CONSTRAINT "PolicyFeatureMap_permissionKeyId_fkey" FOREIGN KEY ("permissionKeyId") REFERENCES "ModuleFeature"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "FeatureCollection" ADD CONSTRAINT "FeatureCollection_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policy"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PolicyFeatureMap" ADD CONSTRAINT "PolicyFeatureMap_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policy"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CollectionFeatureMap" ADD CONSTRAINT "CollectionFeatureMap_collectionId_fkey" FOREIGN KEY ("collectionId") REFERENCES "FeatureCollection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CollectionFeatureMap" ADD CONSTRAINT "CollectionFeatureMap_moduleFeatureId_fkey" FOREIGN KEY ("moduleFeatureId") REFERENCES "ModuleFeature"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_userTypeId_fkey" FOREIGN KEY ("userTypeId") REFERENCES "UserType"("id") ON DELETE CASCADE ON UPDATE CASCADE;
