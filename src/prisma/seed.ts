@@ -74,6 +74,14 @@ async function createModuleFeatures() {
     },
   });
 
+  const seedDB = await prisma.moduleFeature.create({
+    data: {
+      permissionKey: "DANGER:reset_data",
+      type: FeatureType.API,
+      method: null, // explicitly null (optional field)
+    },
+  });
+
   console.log("✅ Module features created");
 
   return {
@@ -81,6 +89,7 @@ async function createModuleFeatures() {
     usersGet,
     usersCreate,
     usersComponent,
+    seedDB,
   };
 }
 
@@ -199,6 +208,7 @@ async function seed(): Promise<void> {
     features.usersGet.id,
     features.usersCreate.id,
     features.usersComponent.id,
+    features.seedDB.id,
   ]);
 
   const adminUserType = await createAdminUserType(policy.id);
