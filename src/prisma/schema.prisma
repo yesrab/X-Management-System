@@ -30,6 +30,66 @@ enum HttpMethod {
   HEAD
 }
 
+//////////////////////////////////////////////////
+// ORGANIZATION (Tenant)
+//////////////////////////////////////////////////
+
+model Organization {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  metaDataRef String?
+
+  memberships OrganizationMembership[]
+  policies    Policy[]
+  userTypes   UserType[]
+  collections FeatureCollection[]
+}
+
+//////////////////////////////////////////////////
+// GLOBAL USER (Identity)
+//////////////////////////////////////////////////
+
+model User {
+  id                     Int      @id @default(autoincrement())
+  userId                 String   @unique
+  passwordHash           String
+  systemToken            String?
+  incorrectLoginAttempts Int
+  maxLoginAttempts       Int
+  currentActiveLogins    Json?
+  maxActiveLogins        Int
+  metaDataRef            String?
+
+  memberships OrganizationMembership[]
+}
+
+//////////////////////////////////////////////////
+// ORGANIZATION MEMBERSHIP (User ↔ Org)
+//////////////////////////////////////////////////
+
+model OrganizationMembership {
+  id             Int @id @default(autoincrement())
+  organizationId Int
+  userId         Int
+  userTypeId     Int
+  statusId       Int
+  metaDataRef    String?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userType     UserType     @relation(fields: [userTypeId], references: [id], onDelete: Cascade)
+  status       UserStatus   @relation(fields: [statusId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+//////////////////////////////////////////////////
+// GLOBAL PLATFORM FEATURES
+//////////////////////////////////////////////////
+
 model ModuleFeature {
   id            Int      @id @default(autoincrement())
   permissionKey String   @unique
@@ -40,75 +100,90 @@ model ModuleFeature {
   featureLists  CollectionFeatureMap[]
 }
 
+//////////////////////////////////////////////////
+// ORG-SCOPED POLICY
+//////////////////////////////////////////////////
+
 model Policy {
-  id                Int      @id @default(autoincrement())
-  policyName        String
-  description       String?   @db.VarChar(5000)
-  metaDataRef       String?
+  id             Int      @id @default(autoincrement())
+  organizationId Int
+  policyName     String
+  description    String?   @db.VarChar(5000)
+  metaDataRef    String?
 
-  featureLists      FeatureCollection[]
-  userTypes         UserType[]
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@index([policyName])
+  featureLists FeatureCollection[]
+  userTypes    UserType[]
+
+  @@index([organizationId])
+  @@index([organizationId, policyName])
 }
+
+//////////////////////////////////////////////////
+// ORG-SCOPED FEATURE COLLECTION
+//////////////////////////////////////////////////
 
 model FeatureCollection {
-  id          Int      @id @default(autoincrement())
-  name        String @unique
-  description String?  @db.VarChar(5000)
-  policyId    Int
-  metaDataRef String?
+  id             Int      @id @default(autoincrement())
+  organizationId Int
+  name           String
+  description    String?  @db.VarChar(5000)
+  policyId       Int
+  metaDataRef    String?
 
-  policy      Policy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  policy       Policy       @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
   features    CollectionFeatureMap[]
 
-  @@index([name , policyId])
+  @@unique([organizationId, name])
+  @@index([organizationId, policyId])
 }
+
+//////////////////////////////////////////////////
+// COLLECTION ↔ FEATURE MAP (GLOBAL FEATURES)
+//////////////////////////////////////////////////
 
 model CollectionFeatureMap {
   id              Int @id @default(autoincrement())
-  collectionId   Int
+  collectionId    Int
   moduleFeatureId Int
 
-  featureCollection   FeatureCollection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  moduleFeature ModuleFeature @relation(fields: [moduleFeatureId], references: [id], onDelete: Cascade)
+  featureCollection FeatureCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  moduleFeature     ModuleFeature     @relation(fields: [moduleFeatureId], references: [id], onDelete: Cascade)
 
   @@unique([collectionId, moduleFeatureId])
 }
 
-model User {
-  id                     Int      @id @default(autoincrement())
-  userId                 String   @unique
-  passwordHash           String
-  userTypeId             Int
-  statusId               Int
-  systemToken            String?
-  incorrectLoginAttempts Int
-  maxLoginAttempts       Int
-  currentActiveLogins    Json?
-  maxActiveLogins        Int
-  metaDataRef            String?
-
-  userType   UserType   @relation(fields: [userTypeId], references: [id], onDelete: Cascade)
-  status     UserStatus @relation(fields: [statusId], references: [id], onDelete: Cascade)
-
-  @@index([userTypeId , userId])
-}
+//////////////////////////////////////////////////
+// ORG-SCOPED ROLE
+//////////////////////////////////////////////////
 
 model UserType {
-  id           Int      @id @default(autoincrement())
-  userType     String   @unique
-  userPolicyId Int
-  metaDataRef  String?
+  id             Int      @id @default(autoincrement())
+  organizationId Int
+  userType       String
+  userPolicyId   Int
+  metaDataRef    String?
 
-  policy  Policy @relation(fields: [userPolicyId], references: [id], onDelete: Cascade)
-  users   User[]
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  policy       Policy       @relation(fields: [userPolicyId], references: [id], onDelete: Cascade)
+
+  memberships OrganizationMembership[]
+
+  @@unique([organizationId, userType])
+  @@index([organizationId])
 }
+
+//////////////////////////////////////////////////
+// GLOBAL USER STATUS
+//////////////////////////////////////////////////
 
 model UserStatus {
   id          Int      @id @default(autoincrement())
   status      String   @unique
   metaDataRef String?
 
-  users       User[]
+  memberships OrganizationMembership[]
 }
