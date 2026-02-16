@@ -13,17 +13,19 @@ async function cleanDatabase(): Promise<void> {
 
   await prisma.collectionFeatureMap.deleteMany();
   await prisma.featureCollection.deleteMany();
-  await prisma.moduleFeature.deleteMany();
-  await prisma.user.deleteMany();
   await prisma.userType.deleteMany();
   await prisma.policy.deleteMany();
+  await prisma.organizationMembership.deleteMany();
+  await prisma.moduleFeature.deleteMany();
+  await prisma.organization.deleteMany();
+  await prisma.user.deleteMany();
   await prisma.userStatus.deleteMany();
 
   console.log("✅ Database cleared");
 }
 
 /* =====================================================
-   USER STATUS
+   USER STATUS (GLOBAL)
 ===================================================== */
 
 async function createUserStatuses() {
@@ -39,76 +41,75 @@ async function createUserStatuses() {
 }
 
 /* =====================================================
-   MODULE FEATURES
+   ORGANIZATION (TENANT)
+===================================================== */
+
+async function createOrganization() {
+  return prisma.organization.create({
+    data: {
+      name: "Default School",
+      slug: "default-school",
+    },
+  });
+}
+
+/* =====================================================
+   MODULE FEATURES (GLOBAL PLATFORM FEATURES)
 ===================================================== */
 
 async function createModuleFeatures() {
-  const dashboard = await prisma.moduleFeature.create({
-    data: {
-      permissionKey: "dashboard:view",
-      type: FeatureType.ROUTE,
-    },
-  });
-
-  const usersGet = await prisma.moduleFeature.create({
-    data: {
-      permissionKey: "users:get",
-      type: FeatureType.API,
-      method: HttpMethod.GET,
-    },
-  });
-
-  const usersCreate = await prisma.moduleFeature.create({
-    data: {
-      permissionKey: "users:create",
-      type: FeatureType.API,
-      method: HttpMethod.POST,
-    },
-  });
-
-  const usersComponent = await prisma.moduleFeature.create({
-    data: {
-      permissionKey: "users:component",
-      type: FeatureType.COMPONENT,
-      method: null, // explicitly null (optional field)
-    },
-  });
-
-  const seedDB = await prisma.moduleFeature.create({
-    data: {
-      permissionKey: "DANGER:reset_data",
-      type: FeatureType.API,
-      method: null, // explicitly null (optional field)
-    },
+  const features = await prisma.moduleFeature.createMany({
+    data: [
+      {
+        permissionKey: "dashboard:view",
+        type: FeatureType.ROUTE,
+      },
+      {
+        permissionKey: "users:get",
+        type: FeatureType.API,
+        method: HttpMethod.GET,
+      },
+      {
+        permissionKey: "users:create",
+        type: FeatureType.API,
+        method: HttpMethod.POST,
+      },
+      {
+        permissionKey: "users:component",
+        type: FeatureType.COMPONENT,
+        method: null,
+      },
+      {
+        permissionKey: "DANGER:reset_data",
+        type: FeatureType.API,
+        method: null,
+      },
+    ],
   });
 
   console.log("✅ Module features created");
 
-  return {
-    dashboard,
-    usersGet,
-    usersCreate,
-    usersComponent,
-    seedDB,
-  };
+  return prisma.moduleFeature.findMany();
 }
 
 /* =====================================================
-   POLICY + COLLECTION
+   POLICY + COLLECTION (ORG SCOPED)
 ===================================================== */
 
-async function createAdminPolicy() {
+async function createAdminPolicy(organizationId: number) {
   return prisma.policy.create({
     data: {
+      organizationId,
       policyName: "ADMIN_POLICY",
       description: "Full system access",
     },
   });
 }
 
-async function createAdminFeatureCollection(policyId: number) {
+async function createAdminFeatureCollection(organizationId: number, policyId: number) {
   return prisma.featureCollection.create({
     data: {
+      organizationId,
       name: "ADMIN_FEATURES",
       description: "All admin permissions",
       policyId,
@@ -128,12 +129,13 @@ async function mapFeaturesToCollection(collectionId: number, featureIds: number[
 }
 
 /* =====================================================
-   USER TYPE
+   USER TYPE (ORG SCOPED ROLE)
 ===================================================== */
 
-async function createAdminUserType(policyId: number) {
+async function createAdminUserType(organizationId: number, policyId: number) {
   return prisma.userType.create({
     data: {
+      organizationId,
       userType: "ADMIN",
       userPolicyId: policyId,
     },
@@ -154,20 +156,14 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 /* =====================================================
-   ADMIN USER
+   ADMIN USER (GLOBAL)
 ===================================================== */
 
-async function upsertAdminUser(
-  passwordHash: string,
-  userTypeId: number,
-  statusId: number,
-): Promise<void> {
-  await prisma.user.upsert({
+async function upsertAdminUser(passwordHash: string) {
+  return prisma.user.upsert({
     where: { userId: "admin" },
     update: {
       passwordHash,
-      userTypeId,
-      statusId,
       incorrectLoginAttempts: 0,
       maxLoginAttempts: 5,
       currentActiveLogins: [],
@@ -176,16 +172,34 @@ async function upsertAdminUser(
     create: {
       userId: "admin",
       passwordHash,
-      userTypeId,
-      statusId,
       incorrectLoginAttempts: 0,
       maxLoginAttempts: 5,
       currentActiveLogins: [],
       maxActiveLogins: 3,
     },
   });
+}
 
-  console.log("👤 Admin user ready");
+/* =====================================================
+   ORGANIZATION MEMBERSHIP
+===================================================== */
+
+async function createAdminMembership(
+  organizationId: number,
+  userId: number,
+  userTypeId: number,
+  statusId: number,
+) {
+  await prisma.organizationMembership.create({
+    data: {
+      organizationId,
+      userId,
+      userTypeId,
+      statusId,
+    },
+  });
+
+  console.log("🏢 Admin added to organization");
 }
 
 /* =====================================================
@@ -197,25 +211,26 @@ async function seed(): Promise<void> {
 
   const { active } = await createUserStatuses();
 
+  const organization = await createOrganization();
+
   const features = await createModuleFeatures();
 
-  const policy = await createAdminPolicy();
+  const policy = await createAdminPolicy(organization.id);
 
-  const collection = await createAdminFeatureCollection(policy.id);
+  const collection = await createAdminFeatureCollection(organization.id, policy.id);
 
-  await mapFeaturesToCollection(collection.id, [
-    features.dashboard.id,
-    features.usersGet.id,
-    features.usersCreate.id,
-    features.usersComponent.id,
-    features.seedDB.id,
-  ]);
+  await mapFeaturesToCollection(
+    collection.id,
+    features.map((f) => f.id),
+  );
 
-  const adminUserType = await createAdminUserType(policy.id);
+  const adminUserType = await createAdminUserType(organization.id, policy.id);
 
   const passwordHash = await hashPassword("Admin@123");
 
-  await upsertAdminUser(passwordHash, adminUserType.id, active.id);
+  const adminUser = await upsertAdminUser(passwordHash);
+
+  await createAdminMembership(organization.id, adminUser.id, adminUserType.id, active.id);
 
   console.log("🎉 Seed completed successfully");
 }
