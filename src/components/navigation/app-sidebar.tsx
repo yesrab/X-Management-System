@@ -2,18 +2,23 @@
 
 import * as React from "react";
 import {
-  AudioWaveform,
   BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
   Settings2,
-  SquareTerminal,
-  CardSim,
-  Smartphone,
+  GraduationCap,
+  Building2,
+  School,
+  LayoutDashboard,
+  Users,
+  UserCog,
+  Wallet,
+  Package,
+  Bus,
+  MessageSquare,
+  BarChart3,
+  UserPlus,
+  PlusSquare,
+  Receipt,
+
 } from "lucide-react";
 
 import { NavMain } from "@/components/navigation/nav-main";
@@ -31,154 +36,294 @@ import {
 // This is sample data.
 const data = {
   user: {
-    name: "Shahzeb",
-    email: "shahzeb@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "Shahzeb Ali",
+    email: "shahzeb@educloud.app",
+    avatar: "/avatars/admin.jpg",
+    role: "Super Admin",
   },
-  teams: [
+
+  organizations: [
     {
-      name: "Grameenphone",
-      logo: CardSim,
+      name: "Green Valley International School",
+      logo: GraduationCap,
       plan: "Enterprise",
+      role: "Organization Admin",
     },
     {
-      name: "Telenor Pakistan",
-      logo: Smartphone,
-      plan: "Startup",
+      name: "Narayana Junior College",
+      logo: Building2,
+      plan: "Professional",
+      role: "Principal",
     },
     {
-      name: "Robi",
-      logo: Command,
+      name: "St. Ann's Manovikas Kendra",
+      logo: School,
       plan: "Free",
+      role: "Viewer",
     },
   ],
+
   navMain: [
     {
-      title: "Inventory",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Add/view Stock",
-          url: "#",
-        },
-        {
-          title: "Manual Stock Adjustment",
-          url: "#",
-        },
-        {
-          title: "Bulk Stock Adjustment",
-          url: "#",
-        },
-      ],
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+      isActive: false,
     },
     {
-      title: "Products",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Add/view Product",
-          url: "/",
-        },
-        {
-          title: "Product Variants",
-          url: "#",
-        },
-        {
-          title: "Product Categories",
-          url: "#",
-        },
-        {
-          title: "Brands",
-          url: "#",
-        },
-        {
-          title: "Suppliers and logistics",
-          url: "#",
-        },
-        {
-          title: "Product Bundles",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Retailers",
+      title: "Academics",
       url: "#",
       icon: BookOpen,
       items: [
         {
-          title: "Add/view Retailer",
-          url: "#",
+          title: "Classes & Sections",
+          url: "/academics/classes",
         },
         {
-          title: "Retailer Management",
-          url: "#",
+          title: "Subjects",
+          url: "/academics/subjects",
         },
         {
-          title: "Retailer Sales",
-          url: "#",
+          title: "Timetable",
+          url: "/academics/timetable",
         },
         {
-          title: "Retailer Onboarding",
-          url: "#",
+          title: "Assignments",
+          url: "/academics/assignments",
+        },
+        {
+          title: "Attendance",
+          url: "/academics/attendance",
+        },
+        {
+          title: "Examinations",
+          url: "/academics/exams",
+        },
+        {
+          title: "Gradebook",
+          url: "/academics/grades",
         },
       ],
     },
+
+    {
+      title: "Students",
+      url: "#",
+      icon: Users,
+      items: [
+        {
+          title: "Student Directory",
+          url: "/students",
+        },
+        {
+          title: "Admissions",
+          url: "/students/admissions",
+        },
+        {
+          title: "Promotions",
+          url: "/students/promotions",
+        },
+        {
+          title: "Parent Accounts",
+          url: "/students/parents",
+        },
+      ],
+    },
+
+    {
+      title: "Staff & HR",
+      url: "#",
+      icon: UserCog,
+      items: [
+        {
+          title: "Staff Directory",
+          url: "/staff",
+        },
+        {
+          title: "Roles & Permissions (RBAC)",
+          url: "/staff/roles",
+        },
+        {
+          title: "Payroll",
+          url: "/staff/payroll",
+        },
+        {
+          title: "Leave Management",
+          url: "/staff/leave",
+        },
+      ],
+    },
+
+    {
+      title: "Finance",
+      url: "#",
+      icon: Wallet,
+      items: [
+        {
+          title: "Fee Structures",
+          url: "/finance/fees",
+        },
+        {
+          title: "Fee Collection",
+          url: "/finance/collections",
+        },
+        {
+          title: "Scholarships",
+          url: "/finance/scholarships",
+        },
+        {
+          title: "Expenses",
+          url: "/finance/expenses",
+        },
+        {
+          title: "Financial Reports",
+          url: "/finance/reports",
+        },
+      ],
+    },
+
+    {
+      title: "Inventory & Assets",
+      url: "#",
+      icon: Package,
+      items: [
+        {
+          title: "Asset Management",
+          url: "/inventory/assets",
+        },
+        {
+          title: "Library",
+          url: "/inventory/library",
+        },
+        {
+          title: "Lab Equipment",
+          url: "/inventory/labs",
+        },
+        {
+          title: "Stock Adjustments",
+          url: "/inventory/stock",
+        },
+      ],
+    },
+
+    {
+      title: "Transport",
+      url: "#",
+      icon: Bus,
+      items: [
+        {
+          title: "Vehicles",
+          url: "/transport/vehicles",
+        },
+        {
+          title: "Routes",
+          url: "/transport/routes",
+        },
+        {
+          title: "Driver Management",
+          url: "/transport/drivers",
+        },
+      ],
+    },
+
+    {
+      title: "Communication",
+      url: "#",
+      icon: MessageSquare,
+      items: [
+        {
+          title: "Announcements",
+          url: "/communication/announcements",
+        },
+        {
+          title: "Email & SMS",
+          url: "/communication/messaging",
+        },
+        {
+          title: "Notifications",
+          url: "/communication/notifications",
+        },
+      ],
+    },
+
+    {
+      title: "Reports & Analytics",
+      url: "#",
+      icon: BarChart3,
+      items: [
+        {
+          title: "Academic Reports",
+          url: "/reports/academic",
+        },
+        {
+          title: "Attendance Reports",
+          url: "/reports/attendance",
+        },
+        {
+          title: "Finance Reports",
+          url: "/reports/finance",
+        },
+        {
+          title: "Custom Reports",
+          url: "/reports/custom",
+        },
+      ],
+    },
+
     {
       title: "Settings",
       url: "#",
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "#",
+          title: "General Settings",
+          url: "/settings/general",
         },
         {
-          title: "Team",
-          url: "#",
+          title: "Branding",
+          url: "/settings/branding",
         },
         {
-          title: "Billing",
-          url: "#",
+          title: "Subscription & Billing",
+          url: "/settings/billing",
         },
         {
-          title: "Limits",
-          url: "#",
+          title: "Audit Logs",
+          url: "/settings/audit",
         },
       ],
     },
   ],
-  projects: [
+
+  quickActions: [
     {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
+      name: "Add Student",
+      url: "/students/new",
+      icon: UserPlus,
     },
     {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
+      name: "Create Class",
+      url: "/academics/classes/new",
+      icon: PlusSquare,
     },
     {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Generate Fee Invoice",
+      url: "/finance/invoice/new",
+      icon: Receipt,
     },
   ],
 };
+
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={data.organizations} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={data.quickActions} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
