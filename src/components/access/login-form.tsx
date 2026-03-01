@@ -7,12 +7,7 @@ import {
   useTransform,
 } from '@tanstack/react-form-nextjs';
 
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldError,
-} from '@/components/ui/field';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ErrorField from '@/components/form/Error-field';
@@ -49,9 +44,9 @@ export default function LoginForm() {
           {(field) => {
             return (
               <Field>
-                <FieldLabel htmlFor='email'>Email</FieldLabel>
+                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                 <Input
-                  id='email'
+                  id={field.name}
                   name={field.name}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
@@ -59,7 +54,7 @@ export default function LoginForm() {
                   type='email'
                   required
                 />
-                <ErrorField meta={field.state.meta} />
+                <ErrorField name={field.name} meta={field.state.meta} />
               </Field>
             );
           }}
@@ -69,7 +64,7 @@ export default function LoginForm() {
             return (
               <Field>
                 <div className='flex items-center'>
-                  <FieldLabel htmlFor='password'>Password</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                   <a
                     href='#'
                     className='ml-auto text-sm underline-offset-2 hover:underline'
@@ -80,12 +75,12 @@ export default function LoginForm() {
                 <Input
                   name={field.name}
                   value={field.state.value}
-                  id='password'
+                  id={field.name}
                   type='password'
                   required
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-                <ErrorField meta={field.state.meta} />
+                <ErrorField name={field.name} meta={field.state.meta} />
               </Field>
             );
           }}

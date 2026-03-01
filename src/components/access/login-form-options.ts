@@ -12,6 +12,6 @@ export const formOpts = formOptions({
     password: '',
   },
   validators: {
-    onSubmit: loginSchema,
+    onChange: loginSchema,
   },
 });
