@@ -43,6 +43,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@tanstack/eslint-plugin-query": "^5.91.4",
+    "@types/lodash": "^4.17.24",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
