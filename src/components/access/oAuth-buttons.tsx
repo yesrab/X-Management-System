@@ -1,7 +1,11 @@
 import { Field, FieldDescription, FieldSeparator } from '@/components/ui/field';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-const OAuthButtons = () => {
+
+interface oAuthButtonsProps {
+  type?: 'signup' | 'login';
+}
+const OAuthButtons = ({ type = 'login' }: oAuthButtonsProps) => {
   return (
     <>
       <FieldSeparator className='*:data-[slot=field-separator-content]:bg-card'>
@@ -15,7 +19,10 @@ const OAuthButtons = () => {
               fill='currentColor'
             />
           </svg>
-          <span className='sr-only'>Login with Apple</span>
+          <span className='sr-only'>
+            {' '}
+            {type === 'login' ? 'Login with Apple' : 'Sign up with Apple'}
+          </span>
         </Button>
         <Button disabled variant='outline' type='button'>
           <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
@@ -24,7 +31,10 @@ const OAuthButtons = () => {
               fill='currentColor'
             />
           </svg>
-          <span className='sr-only'>Login with Google</span>
+          <span className='sr-only'>
+            {' '}
+            {type === 'login' ? 'Login with Google' : 'Sign up with Google'}
+          </span>
         </Button>
         <Button disabled variant='outline' type='button'>
           <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
@@ -33,12 +43,21 @@ const OAuthButtons = () => {
               fill='currentColor'
             />
           </svg>
-          <span className='sr-only'>Login with Meta</span>
+          <span className='sr-only'>
+            {' '}
+            {type === 'login' ? 'Login with Meta' : 'Sign up with Meta'}
+          </span>
         </Button>
       </Field>
-      <FieldDescription className='text-center'>
-        Don&apos;t have an account? <Link href='/signup'>Sign up</Link>
-      </FieldDescription>
+      {type === 'login' ? (
+        <FieldDescription className='text-center'>
+          Don&apos;t have an account? <Link href='/signup'>Sign up</Link>
+        </FieldDescription>
+      ) : (
+        <FieldDescription className='text-center'>
+          Already have an account? <Link href='/login'>Sign in</Link>
+        </FieldDescription>
+      )}
     </>
   );
 };
