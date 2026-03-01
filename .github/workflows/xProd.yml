@@ -1,4 +1,14 @@
-- name: 'notify vercel'
-  uses: 'vercel/repository-dispatch/actions/status@v1'
-  with:
-    name: Vercel - x-management-system: xProd
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'notify vercel'
+        if: github.ref == 'refs/heads/master'
+        uses: 'vercel/repository-dispatch/actions/status@v1'
+        with:
+          name: Vercel - x-management-system: xProd
