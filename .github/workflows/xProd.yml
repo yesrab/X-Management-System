@@ -11,4 +11,4 @@ jobs:
         if: github.ref == 'refs/heads/master'
         uses: 'vercel/repository-dispatch/actions/status@v1'
         with:
-          name: Vercel - x-management-system: xProd
+          name:Vercel - x-management-system: xProd
