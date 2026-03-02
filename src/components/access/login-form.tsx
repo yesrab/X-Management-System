@@ -27,9 +27,9 @@ export default function LoginForm() {
   const form = useForm({
     ...formOpts,
     transform: useTransform((baseForm) => mergeForm(baseForm, state!), [state]),
-    validators: {
-      onChange: loginSchema,
-    },
+    // validators: {
+    //   onChange: loginSchema,
+    // },
   });
 
   return (
