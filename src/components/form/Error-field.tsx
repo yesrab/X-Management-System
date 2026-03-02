@@ -15,8 +15,8 @@ function ErrorField({ meta, name }: FieldErrorsProps) {
     meta.errors,
     (error: StandardSchemaV1Issue) => error.message,
   );
-  return uniqueErrors.map(({ message }: any, index: number) => (
-    <FieldError key={index}>{message}</FieldError>
+  return uniqueErrors.map((error: StandardSchemaV1Issue, index: number) => (
+    <FieldError key={index}>{error.message}</FieldError>
   ));
 }
 

@@ -2,17 +2,40 @@
 import {
   ServerValidateError,
   createServerValidate,
+  type StandardSchemaV1Issue,
 } from '@tanstack/react-form-nextjs';
+import { redirect } from 'next/navigation';
+import type { z } from 'zod';
 
 import { verifyPassword } from '@/lib/crypto';
 import { prisma } from '@/lib/prisma';
+import { createSession } from '@/lib/sessions';
 import { formOpts, loginSchema } from '@/components/access/login-form-options';
 import logger from '@/lib/logger';
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 const serverValidate = createServerValidate({
   ...formOpts,
   onServerValidate: loginSchema,
 });
+
+const credentialErrors: Record<string, StandardSchemaV1Issue[]> = {
+  email: [{ path: ['email'], message: 'Invalid email or password' }],
+  password: [{ path: ['password'], message: 'Invalid email or password' }],
+};
+
+function throwCredentialError(values: LoginFormData): never {
+  throw new ServerValidateError<LoginFormData, typeof loginSchema>({
+    formState: {
+      errorMap: {
+        onServer: credentialErrors,
+      },
+      values,
+      errors: [],
+    },
+  });
+}
 
 export async function loginAction(prev: unknown, formData: FormData) {
   try {
@@ -27,12 +50,12 @@ export async function loginAction(prev: unknown, formData: FormData) {
         'Login attempt with non-existent email: %s',
         validatedData.email,
       );
-      // need to throw a similar error so we can show in ui
-      return;
+      throwCredentialError(validatedData);
     }
+
     const isValid = await verifyPassword(
-      validatedData.password,
       user.passwordHash,
+      validatedData.password,
     );
 
     if (!isValid) {
@@ -40,13 +63,11 @@ export async function loginAction(prev: unknown, formData: FormData) {
         'Invalid password attempt for email: %s',
         validatedData.email,
       );
-      // need to throw a similar error so we can show in ui
-      return;
+      throwCredentialError(validatedData);
     }
 
-    // success logic here
+    await createSession(user.id.toString());
   } catch (error) {
-    console.error('Error in loginAction:', JSON.stringify(error));
     if (error instanceof ServerValidateError) {
       return error.formState;
     }
@@ -54,4 +75,6 @@ export async function loginAction(prev: unknown, formData: FormData) {
     logger.error({ error }, 'Unhandled error in loginAction');
     throw error;
   }
+
+  redirect('/dashboard');
 }
