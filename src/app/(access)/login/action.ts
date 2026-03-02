@@ -1,41 +1,57 @@
 'use server';
-
 import {
   ServerValidateError,
   createServerValidate,
 } from '@tanstack/react-form-nextjs';
-import { formOpts, loginSchema } from '@/components/access/login-form-options';
-import { z } from 'zod';
 
-// Create the server action that will infer the types of the form from `formOpts`
+import { verifyPassword } from '@/lib/crypto';
+import { prisma } from '@/lib/prisma';
+import { formOpts, loginSchema } from '@/components/access/login-form-options';
+import logger from '@/lib/logger';
+
 const serverValidate = createServerValidate({
   ...formOpts,
   onServerValidate: loginSchema,
 });
 
-export default async function someAction(prev: unknown, formData: FormData) {
+export async function loginAction(prev: unknown, formData: FormData) {
   try {
     const validatedData = await serverValidate(formData);
-    console.log('validatedData', validatedData);
-    // Persist the form data to the database
-    // await sql`
-    //   INSERT INTO users (name, email, password)
-    //   VALUES (${validatedData.name}, ${validatedData.email}, ${validatedData.password})
-    // `
-  } catch (error) {
-    // if (error instanceof z.ZodError) {
-    //   console.log('validation errors:', error.issues);
-    //   return error.formErrors.fieldErrors as never;
-    // }
-    // return error.formstate as never;
-    if (error instanceof ServerValidateError) {
-      console.log('validation errors:', error);
-      console.log('validation errors form state:', error.formState);
-      return error.formState as never;
+
+    const user = await prisma.user.findUnique({
+      where: { userId: validatedData.email },
+    });
+
+    if (!user) {
+      logger.warn(
+        'Login attempt with non-existent email: %s',
+        validatedData.email,
+      );
+      // need to throw a similar error so we can show in ui
+      return;
     }
-    // Some other error occurred while validating your form
+    const isValid = await verifyPassword(
+      validatedData.password,
+      user.passwordHash,
+    );
+
+    if (!isValid) {
+      logger.warn(
+        'Invalid password attempt for email: %s',
+        validatedData.email,
+      );
+      // need to throw a similar error so we can show in ui
+      return;
+    }
+
+    // success logic here
+  } catch (error) {
+    console.error('Error in loginAction:', JSON.stringify(error));
+    if (error instanceof ServerValidateError) {
+      return error.formState;
+    }
+
+    logger.error({ error }, 'Unhandled error in loginAction');
     throw error;
   }
-
-  // Your form has successfully validated!
 }

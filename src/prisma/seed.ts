@@ -1,15 +1,15 @@
-import { hash } from "@node-rs/argon2";
-import { FeatureType, HttpMethod } from "@/generated/prisma/client";
-import "dotenv/config";
+import { hashPassword } from '@/lib/crypto';
+import { FeatureType, HttpMethod } from '@/generated/prisma/client';
+import 'dotenv/config';
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from '@/lib/prisma';
 
 /* =====================================================
    CLEAN DATABASE
 ===================================================== */
 
 async function cleanDatabase(): Promise<void> {
-  console.log("🧹 Cleaning database...");
+  console.log('🧹 Cleaning database...');
 
   await prisma.collectionFeatureMap.deleteMany();
   await prisma.featureCollection.deleteMany();
@@ -21,7 +21,7 @@ async function cleanDatabase(): Promise<void> {
   await prisma.user.deleteMany();
   await prisma.userStatus.deleteMany();
 
-  console.log("✅ Database cleared");
+  console.log('✅ Database cleared');
 }
 
 /* =====================================================
@@ -30,11 +30,11 @@ async function cleanDatabase(): Promise<void> {
 
 async function createUserStatuses() {
   const active = await prisma.userStatus.create({
-    data: { status: "ACTIVE" },
+    data: { status: 'ACTIVE' },
   });
 
   const locked = await prisma.userStatus.create({
-    data: { status: "LOCKED" },
+    data: { status: 'LOCKED' },
   });
 
   return { active, locked };
@@ -47,8 +47,8 @@ async function createUserStatuses() {
 async function createOrganization() {
   return prisma.organization.create({
     data: {
-      name: "Default School",
-      slug: "default-school",
+      name: 'Default School',
+      slug: 'default-school',
     },
   });
 }
@@ -61,33 +61,33 @@ async function createModuleFeatures() {
   const features = await prisma.moduleFeature.createMany({
     data: [
       {
-        permissionKey: "dashboard:view",
+        permissionKey: 'dashboard:view',
         type: FeatureType.ROUTE,
       },
       {
-        permissionKey: "users:get",
+        permissionKey: 'users:get',
         type: FeatureType.API,
         method: HttpMethod.GET,
       },
       {
-        permissionKey: "users:create",
+        permissionKey: 'users:create',
         type: FeatureType.API,
         method: HttpMethod.POST,
       },
       {
-        permissionKey: "users:component",
+        permissionKey: 'users:component',
         type: FeatureType.COMPONENT,
         method: null,
       },
       {
-        permissionKey: "DANGER:reset_data",
+        permissionKey: 'DANGER:reset_data',
         type: FeatureType.API,
         method: null,
       },
     ],
   });
 
-  console.log("✅ Module features created");
+  console.log('✅ Module features created');
 
   return prisma.moduleFeature.findMany();
 }
@@ -100,24 +100,30 @@ async function createAdminPolicy(organizationId: number) {
   return prisma.policy.create({
     data: {
       organizationId,
-      policyName: "ADMIN_POLICY",
-      description: "Full system access",
+      policyName: 'ADMIN_POLICY',
+      description: 'Full system access',
     },
   });
 }
 
-async function createAdminFeatureCollection(organizationId: number, policyId: number) {
+async function createAdminFeatureCollection(
+  organizationId: number,
+  policyId: number,
+) {
   return prisma.featureCollection.create({
     data: {
       organizationId,
-      name: "ADMIN_FEATURES",
-      description: "All admin permissions",
+      name: 'ADMIN_FEATURES',
+      description: 'All admin permissions',
       policyId,
     },
   });
 }
 
-async function mapFeaturesToCollection(collectionId: number, featureIds: number[]): Promise<void> {
+async function mapFeaturesToCollection(
+  collectionId: number,
+  featureIds: number[],
+): Promise<void> {
   await prisma.collectionFeatureMap.createMany({
     data: featureIds.map((featureId) => ({
       collectionId,
@@ -125,7 +131,7 @@ async function mapFeaturesToCollection(collectionId: number, featureIds: number[
     })),
   });
 
-  console.log("🔗 Features mapped");
+  console.log('🔗 Features mapped');
 }
 
 /* =====================================================
@@ -136,22 +142,9 @@ async function createAdminUserType(organizationId: number, policyId: number) {
   return prisma.userType.create({
     data: {
       organizationId,
-      userType: "ADMIN",
+      userType: 'ADMIN',
       userPolicyId: policyId,
     },
-  });
-}
-
-/* =====================================================
-   PASSWORD HASHING (argon2id)
-===================================================== */
-
-async function hashPassword(password: string): Promise<string> {
-  return hash(password, {
-    algorithm: 2, // argon2id
-    memoryCost: 65536,
-    timeCost: 3,
-    parallelism: 1,
   });
 }
 
@@ -161,7 +154,7 @@ async function hashPassword(password: string): Promise<string> {
 
 async function upsertAdminUser(passwordHash: string) {
   return prisma.user.upsert({
-    where: { userId: "admin" },
+    where: { userId: 'admin' },
     update: {
       passwordHash,
       incorrectLoginAttempts: 0,
@@ -170,7 +163,7 @@ async function upsertAdminUser(passwordHash: string) {
       maxActiveLogins: 3,
     },
     create: {
-      userId: "admin",
+      userId: 'admin',
       passwordHash,
       incorrectLoginAttempts: 0,
       maxLoginAttempts: 5,
@@ -199,7 +192,7 @@ async function createAdminMembership(
     },
   });
 
-  console.log("🏢 Admin added to organization");
+  console.log('🏢 Admin added to organization');
 }
 
 /* =====================================================
@@ -207,7 +200,7 @@ async function createAdminMembership(
 ===================================================== */
 
 async function seed(): Promise<void> {
-  console.log("🌱 Seeding database...");
+  console.log('🌱 Seeding database...');
 
   const { active } = await createUserStatuses();
 
@@ -217,7 +210,10 @@ async function seed(): Promise<void> {
 
   const policy = await createAdminPolicy(organization.id);
 
-  const collection = await createAdminFeatureCollection(organization.id, policy.id);
+  const collection = await createAdminFeatureCollection(
+    organization.id,
+    policy.id,
+  );
 
   await mapFeaturesToCollection(
     collection.id,
@@ -226,13 +222,18 @@ async function seed(): Promise<void> {
 
   const adminUserType = await createAdminUserType(organization.id, policy.id);
 
-  const passwordHash = await hashPassword("Admin@123");
+  const passwordHash = await hashPassword('Admin@123');
 
   const adminUser = await upsertAdminUser(passwordHash);
 
-  await createAdminMembership(organization.id, adminUser.id, adminUserType.id, active.id);
+  await createAdminMembership(
+    organization.id,
+    adminUser.id,
+    adminUserType.id,
+    active.id,
+  );
 
-  console.log("🎉 Seed completed successfully");
+  console.log('🎉 Seed completed successfully');
 }
 
 /* =====================================================
@@ -241,7 +242,7 @@ async function seed(): Promise<void> {
 
 export async function main(): Promise<void> {
   if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL environment variable is not set");
+    throw new Error('DATABASE_URL environment variable is not set');
   }
   await cleanDatabase();
   await seed();

@@ -9,24 +9,29 @@ import {
 
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import ErrorField from '@/components/form/Error-field';
 
-import someAction from '@/app/(access)/login/action';
+import { loginAction } from '@/app/(access)/login/action';
 import { loginSchema } from '@/components/access/login-form-options';
 import { formOpts } from './login-form-options';
 import OAuthButtons from './oAuth-buttons';
 
 export default function LoginForm() {
-  const [state, action] = useActionState(someAction, initialFormState);
+  const [state, action, pending] = useActionState(
+    loginAction,
+    initialFormState,
+  );
 
   const form = useForm({
     ...formOpts,
     transform: useTransform((baseForm) => mergeForm(baseForm, state!), [state]),
     validators: {
-      onSubmit: loginSchema,
+      onChange: loginSchema,
     },
   });
+
   return (
     <form
       action={action as never}
@@ -42,6 +47,8 @@ export default function LoginForm() {
         </div>
         <form.Field name='email' defaultValue=''>
           {(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
             return (
               <Field>
                 <FieldLabel htmlFor={field.name}>Email</FieldLabel>
@@ -49,9 +56,11 @@ export default function LoginForm() {
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
+                  onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder='john@example.com'
                   type='email'
+                  aria-invalid={isInvalid}
                   required
                 />
                 <ErrorField name={field.name} meta={field.state.meta} />
@@ -61,6 +70,8 @@ export default function LoginForm() {
         </form.Field>
         <form.Field name='password' defaultValue=''>
           {(field) => {
+            const isInvalid =
+              field.state.meta.isTouched && !field.state.meta.isValid;
             return (
               <Field>
                 <div className='flex items-center'>
@@ -76,8 +87,10 @@ export default function LoginForm() {
                   name={field.name}
                   value={field.state.value}
                   id={field.name}
+                  onBlur={field.handleBlur}
                   type='password'
                   required
+                  aria-invalid={isInvalid}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
                 <ErrorField name={field.name} meta={field.state.meta} />
@@ -99,7 +112,11 @@ export default function LoginForm() {
                 type='submit'
                 disabled={!canSubmit || isPristine}
               >
-                {isSubmitting ? '...' : 'Login'}
+                {isSubmitting || pending ? (
+                  <Spinner data-icon='inline-start' />
+                ) : (
+                  'Login'
+                )}
               </Button>
             </Field>
           )}
