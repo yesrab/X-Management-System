@@ -6,7 +6,10 @@ import {
 
 import { verifyPassword } from '@/lib/crypto';
 import { prisma } from '@/lib/prisma';
-import { formOpts, loginSchema } from '@/components/access/login-form-options';
+import {
+  formOpts,
+  loginSchema,
+} from '@/components/access/login/login-form-options';
 import logger from '@/lib/logger';
 import { z } from 'zod';
 

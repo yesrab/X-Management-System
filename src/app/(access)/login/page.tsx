@@ -1,4 +1,4 @@
-import { LoginFormContainer } from "@/components/access/login-form-container";
+import { LoginFormContainer } from '@/components/access/login/login-form-container';
 
 export default function LoginPage() {
   return (

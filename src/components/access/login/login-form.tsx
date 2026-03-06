@@ -1,41 +1,60 @@
 'use client';
-import { useActionState } from 'react';
-import {
-  initialFormState,
-  mergeForm,
-  useForm,
-  useTransform,
-} from '@tanstack/react-form-nextjs';
-
+import { useForm } from '@tanstack/react-form-nextjs';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import ErrorField from '@/components/form/Error-field';
-
-import { loginAction } from '@/app/(access)/login/action';
-import { loginSchema } from '@/components/access/login-form-options';
+import { loginSchema } from '@/components/access/login/login-form-options';
 import { formOpts } from './login-form-options';
-import OAuthButtons from './oAuth-buttons';
+import OAuthButtons from '../oAuth-buttons';
 
 export default function LoginForm() {
-  const [state, action, pending] = useActionState(
-    loginAction,
-    initialFormState,
-  );
-
   const form = useForm({
     ...formOpts,
-    transform: useTransform((baseForm) => mergeForm(baseForm, state!), [state]),
-    // validators: {
-    //   onChange: loginSchema,
-    // },
+    validators: {
+      onChangeAsync: loginSchema,
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        const response = await fetch('/api/access/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(value),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          return {
+            fields: {
+              email: result.message || 'Login failed',
+            },
+          };
+        }
+
+        // Success - redirect or handle as needed
+        console.log('Login successful:', result.data);
+        // You can redirect here: window.location.href = '/dashboard';
+      } catch (error) {
+        console.error('Login error:', error);
+        return {
+          fields: {
+            email: 'An error occurred during login',
+          },
+        };
+      }
+    },
   });
 
   return (
     <form
-      action={action as never}
-      onSubmit={() => form.handleSubmit()}
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
       className='p-6 md:p-8'
     >
       <FieldGroup>
@@ -112,11 +131,7 @@ export default function LoginForm() {
                 type='submit'
                 disabled={!canSubmit || isPristine}
               >
-                {isSubmitting || pending ? (
-                  <Spinner data-icon='inline-start' />
-                ) : (
-                  'Login'
-                )}
+                {isSubmitting ? <Spinner data-icon='inline-start' /> : 'Login'}
               </Button>
             </Field>
           )}
