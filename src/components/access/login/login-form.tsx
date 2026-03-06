@@ -26,6 +26,7 @@ export default function LoginForm() {
         });
 
         const result = await response.json();
+        console.log('Login response:', result);
 
         if (!response.ok) {
           return {
@@ -37,7 +38,6 @@ export default function LoginForm() {
 
         // Success - redirect or handle as needed
         console.log('Login successful:', result.data);
-        // You can redirect here: window.location.href = '/dashboard';
       } catch (error) {
         console.error('Login error:', error);
         return {
