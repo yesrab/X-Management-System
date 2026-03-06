@@ -9,15 +9,16 @@ type FieldErrorsProps = {
   name: string;
 };
 
-function ErrorField({ meta, name }: FieldErrorsProps) {
-  if (!meta.isTouched) return null;
+function ErrorField({ meta }: FieldErrorsProps) {
+  if (!meta.isTouched || !meta.isValid) return null;
   const uniqueErrors = uniqBy(
     meta.errors,
     (error: StandardSchemaV1Issue) => error.message,
   );
-  return uniqueErrors.map((error: StandardSchemaV1Issue, index: number) => (
-    <FieldError key={index}>{error.message}</FieldError>
-  ));
+  return uniqueErrors.map((error: StandardSchemaV1Issue, index: number) => {
+    console.log('errors', error);
+    return <FieldError key={index}>{error.message}</FieldError>;
+  });
 }
 
 export default ErrorField;

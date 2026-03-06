@@ -10,8 +10,12 @@ import type { z } from 'zod';
 import { verifyPassword } from '@/lib/crypto';
 import { prisma } from '@/lib/prisma';
 import { createSession } from '@/lib/sessions';
-import { formOpts, loginSchema } from '@/components/access/login-form-options';
+import {
+  formOpts,
+  loginSchema,
+} from '@/components/access/login/login-form-options';
 import logger from '@/lib/logger';
+import { fi } from 'zod/v4/locales';
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -50,7 +54,13 @@ export async function loginAction(prev: unknown, formData: FormData) {
         'Login attempt with non-existent email: %s',
         validatedData.email,
       );
-      throwCredentialError(validatedData);
+      // throwCredentialError(validatedData);
+      return {
+        fields: {
+          email: 'Invalid email address',
+          password: 'Incorrect password',
+        },
+      };
     }
 
     const isValid = await verifyPassword(
@@ -63,7 +73,13 @@ export async function loginAction(prev: unknown, formData: FormData) {
         'Invalid password attempt for email: %s',
         validatedData.email,
       );
-      throwCredentialError(validatedData);
+      // throwCredentialError(validatedData);
+      return {
+        fields: {
+          email: 'Invalid email address',
+          password: 'Incorrect password',
+        },
+      };
     }
 
     await createSession(user.id.toString());

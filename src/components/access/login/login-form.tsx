@@ -14,9 +14,9 @@ import { Input } from '@/components/ui/input';
 import ErrorField from '@/components/form/Error-field';
 
 import { loginAction } from '@/app/(access)/login/action';
-import { loginSchema } from '@/components/access/login-form-options';
+import { loginSchema } from '@/components/access/login/login-form-options';
 import { formOpts } from './login-form-options';
-import OAuthButtons from './oAuth-buttons';
+import OAuthButtons from '../oAuth-buttons';
 
 export default function LoginForm() {
   const [state, action, pending] = useActionState(
@@ -29,6 +29,16 @@ export default function LoginForm() {
     transform: useTransform((baseForm) => mergeForm(baseForm, state!), [state]),
     validators: {
       onChange: loginSchema,
+      onSubmitAsync: async (values) => {
+        console.log('Submitting form with values:', values);
+
+        return {
+          fields: {
+            email: 'Email or Password is incorrect',
+            password: 'Email or Password is incorrect',
+          },
+        };
+      },
     },
   });
 
