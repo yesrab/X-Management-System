@@ -14,4 +14,5 @@ const connetionToUse =
 const adapter = new PrismaPg({ connectionString: connetionToUse });
 const prisma = new PrismaClient({ adapter }).$extends(withAccelerate());
 
+export type DbClient = typeof prisma;
 export { prisma };
