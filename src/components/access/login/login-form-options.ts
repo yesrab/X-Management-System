@@ -6,12 +6,15 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
+export interface LoginFormData {
+  email: string;
+  password: string;
+}
+
+const defaultValues: LoginFormData = { email: '', password: '' };
 export const formOpts = formOptions({
-  defaultValues: {
-    email: '',
-    password: '',
+  defaultValues,
+  validators: {
+    onSubmit: loginSchema,
   },
-  // validators: {
-  //   onChange: loginSchema,
-  // },
 });

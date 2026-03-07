@@ -165,6 +165,7 @@ async function upsertAdminUser(passwordHash: string) {
     create: {
       userId: 'admin',
       passwordHash,
+      email: 'admin@edu.com',
       incorrectLoginAttempts: 0,
       maxLoginAttempts: 5,
       currentActiveLogins: [],
