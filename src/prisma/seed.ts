@@ -3,25 +3,31 @@ import { FeatureType, HttpMethod } from '@/generated/prisma/client';
 import 'dotenv/config';
 
 import { prisma } from '@/lib/prisma';
+import logger from '@/lib/logger';
 
 /* =====================================================
    CLEAN DATABASE
 ===================================================== */
 
 async function cleanDatabase(): Promise<void> {
-  console.log('🧹 Cleaning database...');
+  logger.info('🧹 Cleaning database...');
 
-  await prisma.collectionFeatureMap.deleteMany();
-  await prisma.featureCollection.deleteMany();
-  await prisma.userType.deleteMany();
-  await prisma.policy.deleteMany();
-  await prisma.organizationMembership.deleteMany();
-  await prisma.moduleFeature.deleteMany();
-  await prisma.organization.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.userStatus.deleteMany();
+  try {
+    await prisma.collectionFeatureMap.deleteMany();
+    await prisma.featureCollection.deleteMany();
+    await prisma.userType.deleteMany();
+    await prisma.policy.deleteMany();
+    await prisma.organizationMembership.deleteMany();
+    await prisma.moduleFeature.deleteMany();
+    await prisma.organization.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.userStatus.deleteMany();
 
-  console.log('✅ Database cleared');
+    logger.info('✅ Database cleared');
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to clean database');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -29,15 +35,21 @@ async function cleanDatabase(): Promise<void> {
 ===================================================== */
 
 async function createUserStatuses() {
-  const active = await prisma.userStatus.create({
-    data: { status: 'ACTIVE' },
-  });
+  try {
+    const active = await prisma.userStatus.create({
+      data: { status: 'ACTIVE' },
+    });
 
-  const locked = await prisma.userStatus.create({
-    data: { status: 'LOCKED' },
-  });
+    const locked = await prisma.userStatus.create({
+      data: { status: 'LOCKED' },
+    });
 
-  return { active, locked };
+    logger.info('✅ User statuses created');
+    return { active, locked };
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to create user statuses');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -45,12 +57,19 @@ async function createUserStatuses() {
 ===================================================== */
 
 async function createOrganization() {
-  return prisma.organization.create({
-    data: {
-      name: 'Default School',
-      slug: 'default-school',
-    },
-  });
+  try {
+    const org = await prisma.organization.create({
+      data: {
+        name: 'Default School',
+        slug: 'default-school',
+      },
+    });
+    logger.info('✅ Organization created');
+    return org;
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to create organization');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -58,38 +77,43 @@ async function createOrganization() {
 ===================================================== */
 
 async function createModuleFeatures() {
-  const features = await prisma.moduleFeature.createMany({
-    data: [
-      {
-        permissionKey: 'dashboard:view',
-        type: FeatureType.ROUTE,
-      },
-      {
-        permissionKey: 'users:get',
-        type: FeatureType.API,
-        method: HttpMethod.GET,
-      },
-      {
-        permissionKey: 'users:create',
-        type: FeatureType.API,
-        method: HttpMethod.POST,
-      },
-      {
-        permissionKey: 'users:component',
-        type: FeatureType.COMPONENT,
-        method: null,
-      },
-      {
-        permissionKey: 'DANGER:reset_data',
-        type: FeatureType.API,
-        method: null,
-      },
-    ],
-  });
+  try {
+    await prisma.moduleFeature.createMany({
+      data: [
+        {
+          permissionKey: 'dashboard:view',
+          type: FeatureType.ROUTE,
+        },
+        {
+          permissionKey: 'users:get',
+          type: FeatureType.API,
+          method: HttpMethod.GET,
+        },
+        {
+          permissionKey: 'users:create',
+          type: FeatureType.API,
+          method: HttpMethod.POST,
+        },
+        {
+          permissionKey: 'users:component',
+          type: FeatureType.COMPONENT,
+          method: null,
+        },
+        {
+          permissionKey: 'DANGER:reset_data',
+          type: FeatureType.API,
+          method: null,
+        },
+      ],
+    });
 
-  console.log('✅ Module features created');
+    logger.info('✅ Module features created');
 
-  return prisma.moduleFeature.findMany();
+    return prisma.moduleFeature.findMany();
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to create module features');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -97,41 +121,60 @@ async function createModuleFeatures() {
 ===================================================== */
 
 async function createAdminPolicy(organizationId: number) {
-  return prisma.policy.create({
-    data: {
-      organizationId,
-      policyName: 'ADMIN_POLICY',
-      description: 'Full system access',
-    },
-  });
+  try {
+    const policy = await prisma.policy.create({
+      data: {
+        organizationId,
+        policyName: 'ADMIN_POLICY',
+        description: 'Full system access',
+      },
+    });
+    logger.info('✅ Admin policy created');
+    return policy;
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to create admin policy');
+    throw error;
+  }
 }
 
 async function createAdminFeatureCollection(
   organizationId: number,
   policyId: number,
 ) {
-  return prisma.featureCollection.create({
-    data: {
-      organizationId,
-      name: 'ADMIN_FEATURES',
-      description: 'All admin permissions',
-      policyId,
-    },
-  });
+  try {
+    const collection = await prisma.featureCollection.create({
+      data: {
+        organizationId,
+        name: 'ADMIN_FEATURES',
+        description: 'All admin permissions',
+        policyId,
+      },
+    });
+    logger.info('✅ Admin feature collection created');
+    return collection;
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to create admin feature collection');
+    throw error;
+  }
 }
 
 async function mapFeaturesToCollection(
   collectionId: number,
   featureIds: number[],
 ): Promise<void> {
-  await prisma.collectionFeatureMap.createMany({
-    data: featureIds.map((featureId) => ({
-      collectionId,
-      moduleFeatureId: featureId,
-    })),
-  });
+  try {
+    await prisma.collectionFeatureMap.createMany({
+      data: featureIds.map((featureId) => ({
+        collectionId,
+        moduleFeatureId: featureId,
+      })),
+    });
 
-  console.log('🔗 Features mapped');
+    logger.info('🔗 Features mapped to collection');
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to map features to collection');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -139,13 +182,20 @@ async function mapFeaturesToCollection(
 ===================================================== */
 
 async function createAdminUserType(organizationId: number, policyId: number) {
-  return prisma.userType.create({
-    data: {
-      organizationId,
-      userType: 'ADMIN',
-      userPolicyId: policyId,
-    },
-  });
+  try {
+    const userType = await prisma.userType.create({
+      data: {
+        organizationId,
+        userType: 'ADMIN',
+        userPolicyId: policyId,
+      },
+    });
+    logger.info('✅ Admin user type created');
+    return userType;
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to create admin user type');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -153,25 +203,32 @@ async function createAdminUserType(organizationId: number, policyId: number) {
 ===================================================== */
 
 async function upsertAdminUser(passwordHash: string) {
-  return prisma.user.upsert({
-    where: { userId: 'admin' },
-    update: {
-      passwordHash,
-      incorrectLoginAttempts: 0,
-      maxLoginAttempts: 5,
-      currentActiveLogins: [],
-      maxActiveLogins: 3,
-    },
-    create: {
-      userId: 'admin',
-      passwordHash,
-      email: 'admin@edu.com',
-      incorrectLoginAttempts: 0,
-      maxLoginAttempts: 5,
-      currentActiveLogins: [],
-      maxActiveLogins: 3,
-    },
-  });
+  try {
+    const user = await prisma.user.upsert({
+      where: { userId: 'admin' },
+      update: {
+        passwordHash,
+        incorrectLoginAttempts: 0,
+        maxLoginAttempts: 5,
+        currentActiveLogins: [],
+        maxActiveLogins: 3,
+      },
+      create: {
+        userId: 'admin',
+        passwordHash,
+        email: 'admin@edu.com',
+        incorrectLoginAttempts: 0,
+        maxLoginAttempts: 5,
+        currentActiveLogins: [],
+        maxActiveLogins: 3,
+      },
+    });
+    logger.info('✅ Admin user created/updated');
+    return user;
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to upsert admin user');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -184,16 +241,21 @@ async function createAdminMembership(
   userTypeId: number,
   statusId: number,
 ) {
-  await prisma.organizationMembership.create({
-    data: {
-      organizationId,
-      userId,
-      userTypeId,
-      statusId,
-    },
-  });
+  try {
+    await prisma.organizationMembership.create({
+      data: {
+        organizationId,
+        userId,
+        userTypeId,
+        statusId,
+      },
+    });
 
-  console.log('🏢 Admin added to organization');
+    logger.info('🏢 Admin added to organization');
+  } catch (error) {
+    logger.error({ err: error }, 'Failed to create admin membership');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -201,40 +263,45 @@ async function createAdminMembership(
 ===================================================== */
 
 async function seed(): Promise<void> {
-  console.log('🌱 Seeding database...');
+  logger.info('🌱 Seeding database...');
 
-  const { active } = await createUserStatuses();
+  try {
+    const { active } = await createUserStatuses();
 
-  const organization = await createOrganization();
+    const organization = await createOrganization();
 
-  const features = await createModuleFeatures();
+    const features = await createModuleFeatures();
 
-  const policy = await createAdminPolicy(organization.id);
+    const policy = await createAdminPolicy(organization.id);
 
-  const collection = await createAdminFeatureCollection(
-    organization.id,
-    policy.id,
-  );
+    const collection = await createAdminFeatureCollection(
+      organization.id,
+      policy.id,
+    );
 
-  await mapFeaturesToCollection(
-    collection.id,
-    features.map((f) => f.id),
-  );
+    await mapFeaturesToCollection(
+      collection.id,
+      features.map((f) => f.id),
+    );
 
-  const adminUserType = await createAdminUserType(organization.id, policy.id);
+    const adminUserType = await createAdminUserType(organization.id, policy.id);
 
-  const passwordHash = await hashPassword('Admin@123');
+    const passwordHash = await hashPassword('Admin@123');
 
-  const adminUser = await upsertAdminUser(passwordHash);
+    const adminUser = await upsertAdminUser(passwordHash);
 
-  await createAdminMembership(
-    organization.id,
-    adminUser.id,
-    adminUserType.id,
-    active.id,
-  );
+    await createAdminMembership(
+      organization.id,
+      adminUser.id,
+      adminUserType.id,
+      active.id,
+    );
 
-  console.log('🎉 Seed completed successfully');
+    logger.info('🎉 Seed completed successfully');
+  } catch (error) {
+    logger.error({ err: error }, 'Seeding failed');
+    throw error;
+  }
 }
 
 /* =====================================================
@@ -242,9 +309,21 @@ async function seed(): Promise<void> {
 ===================================================== */
 
 export async function main(): Promise<void> {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is not set');
+  try {
+    if (!process.env.DATABASE_URL) {
+      logger.error('DATABASE_URL environment variable is not set');
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+
+    logger.info('Starting database seed process...');
+    await cleanDatabase();
+    await seed();
+    logger.info('Database seed process completed successfully');
+  } catch (error) {
+    logger.error({ err: error }, 'Database seed process failed');
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+    logger.info('Prisma client disconnected');
   }
-  await cleanDatabase();
-  await seed();
 }

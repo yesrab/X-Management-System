@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       message: 'Database reset and seeded successfully',
     });
   } catch (error) {
-    console.error(error);
+    logger.error({ err: error }, 'Seeding API route failed');
     return NextResponse.json(
       { success: false, message: 'Seeding failed' },
       { status: 500 },
