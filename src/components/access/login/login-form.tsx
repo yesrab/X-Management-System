@@ -1,14 +1,16 @@
 'use client';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import {
   initialFormState,
   mergeForm,
   useForm,
   useTransform,
 } from '@tanstack/react-form-nextjs';
+import { Eye, EyeOff } from 'lucide-react';
 
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import ErrorField from '@/components/form/Error-field';
@@ -23,6 +25,7 @@ export default function LoginForm() {
     loginAction,
     initialFormState,
   );
+  const [showPassword, setShowPassword] = useState(false);
   const form = useForm({
     ...formOpts,
     transform: useTransform((baseForm) => mergeForm(baseForm, state!), [state]),
@@ -33,7 +36,7 @@ export default function LoginForm() {
         if (isError) {
           return data;
         }
-        return undefined;
+        return null;
       },
     },
   });
@@ -83,22 +86,32 @@ export default function LoginForm() {
                 <div className='flex items-center'>
                   <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                   <a
-                    href='#'
+                    href='/forgot'
                     className='ml-auto text-sm underline-offset-2 hover:underline'
                   >
                     Forgot your password?
                   </a>
                 </div>
-                <Input
-                  name={field.name}
-                  value={field.state.value}
-                  id={field.name}
-                  onBlur={field.handleBlur}
-                  type='password'
-                  required
-                  aria-invalid={isInvalid}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
+                <ButtonGroup>
+                  <Input
+                    name={field.name}
+                    value={field.state.value}
+                    id={field.name}
+                    onBlur={field.handleBlur}
+                    type={showPassword ? 'text' : 'password'}
+                    aria-invalid={isInvalid}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    required
+                    placeholder='********'
+                  />
+                  <Button
+                    variant='outline'
+                    type='button'
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </Button>
+                </ButtonGroup>
                 <ErrorField name={field.name} meta={field.state.meta} />
               </Field>
             );

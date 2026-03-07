@@ -71,7 +71,7 @@ function createAuthError(): ValidationResult {
 /**
  * Validates user login credentials against the database
  * @param processedData - The validated login form data containing email and password
- * @param isClient - Flag indicating if the validation is being performed on the client side (default: false)
+ * @param isClient - Flag indicating if the validation request origin is being performed on the client side (default: false)
  * @returns ValidationResult containing either user data on success or error messages on failure
  */
 export async function validateLoginForm(
