@@ -5,7 +5,7 @@ import { defineConfig } from 'prisma/config';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const databaseUrl = process.env.DATABASE_URL;
-const prismaDb = process.env.PRISMA_DATABASE_URL;
+const prismaDb = process.env.POSTGRES_URL || databaseUrl;
 const dbToUse = isProduction ? prismaDb : databaseUrl;
 
 export default defineConfig({
