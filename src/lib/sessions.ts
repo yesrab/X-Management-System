@@ -1,6 +1,8 @@
 import 'server-only';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+import logger from '@/lib/logger';
+import { log } from 'console';
 
 const secretKey = process.env.SESSION_SECRET || 'danger';
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -25,7 +27,7 @@ export async function decrypt(session: string | undefined = '') {
     });
     return payload;
   } catch (error) {
-    console.log('Failed to verify session');
+    logger.error({ error }, 'Failed to decrypt session:');
   }
 }
 
