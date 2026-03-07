@@ -121,7 +121,8 @@ export async function loginAction(prev: unknown, formData: FormData) {
 
     const { user } = await validateLoginForm(validatedData);
     if (!user) {
-      redirect('/login?error=Invalid credentials');
+      return;
+      // redirect('/login?error=login_failed');
     }
     await createSession(user.id!.toString());
     redirect('/dashboard');
