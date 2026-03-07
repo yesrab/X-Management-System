@@ -88,11 +88,12 @@ export async function validateLoginForm(
     },
   });
 
-  if (!user || !isClient) {
-    logger.warn(
-      'Login attempt with non-existent email: %s',
-      processedData.email,
-    );
+  if (!user) {
+    !isClient &&
+      logger.warn(
+        'Login attempt with non-existent email: %s',
+        processedData.email,
+      );
     return createAuthError();
   }
 
@@ -102,8 +103,12 @@ export async function validateLoginForm(
     processedData.password,
   );
 
-  if (!isPasswordValid && !isClient) {
-    logger.warn('Invalid password attempt for email: %s', processedData.email);
+  if (!isPasswordValid) {
+    !isClient &&
+      logger.warn(
+        'Invalid password attempt for email: %s',
+        processedData.email,
+      );
     return createAuthError();
   }
 

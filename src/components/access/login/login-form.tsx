@@ -25,20 +25,14 @@ export default function LoginForm() {
   );
   const form = useForm({
     ...formOpts,
-    transform: useTransform(
-      (baseForm) => mergeForm(baseForm, state! as typeof initialFormState),
-      [state],
-    ),
+    transform: useTransform((baseForm) => mergeForm(baseForm, state!), [state]),
     validators: {
       onSubmit: loginSchema,
       onSubmitAsync: async ({ value }) => {
-        const { isError, data, user } = await validateLoginForm(value, true);
-        console.log('Server validation result:', data);
-        // return value;
+        const { isError, data } = await validateLoginForm(value, true);
         if (isError) {
           return data;
         }
-        console.log('user found:', user);
         return undefined;
       },
     },
