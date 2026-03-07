@@ -39,7 +39,7 @@ export default function LoginForm() {
           return data;
         }
         console.log('user found:', user);
-        return null;
+        return undefined;
       },
     },
   });
