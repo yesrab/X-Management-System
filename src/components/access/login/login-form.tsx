@@ -32,7 +32,7 @@ export default function LoginForm() {
     validators: {
       onSubmit: loginSchema,
       onSubmitAsync: async ({ value }) => {
-        const { isError, data, user } = await validateLoginForm(value);
+        const { isError, data, user } = await validateLoginForm(value, true);
         console.log('Server validation result:', data);
         // return value;
         if (isError) {

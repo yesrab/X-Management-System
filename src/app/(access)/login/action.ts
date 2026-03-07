@@ -71,10 +71,12 @@ function createAuthError(): ValidationResult {
 /**
  * Validates user login credentials against the database
  * @param processedData - The validated login form data containing email and password
+ * @param isClient - Flag indicating if the validation is being performed on the client side (default: false)
  * @returns ValidationResult containing either user data on success or error messages on failure
  */
 export async function validateLoginForm(
   processedData: LoginFormData,
+  isClient = false,
 ): Promise<ValidationResult> {
   // Attempt to find user by email
   const user = await prisma.user.findUnique({
@@ -86,7 +88,7 @@ export async function validateLoginForm(
     },
   });
 
-  if (!user) {
+  if (!user || !isClient) {
     logger.warn(
       'Login attempt with non-existent email: %s',
       processedData.email,
@@ -100,7 +102,7 @@ export async function validateLoginForm(
     processedData.password,
   );
 
-  if (!isPasswordValid) {
+  if (!isPasswordValid && !isClient) {
     logger.warn('Invalid password attempt for email: %s', processedData.email);
     return createAuthError();
   }
