@@ -47,7 +47,15 @@ const INVALID_DATA_MESSAGE = 'Invalid data';
 
 const serverValidate = createServerValidate({
   ...formOpts,
-  onServerValidate: loginSchema,
+  onServerValidate: async ({ value }) => {
+    //note to self if Zod fails here do not continue with validateLoginForm, return error in the format of createAuthError
+    //because client zod and server zod are happning concuretly, if client zod fails that meanse onserver zod is sure to fail no neet to waste time with db calls
+    const { isError, data } = await validateLoginForm(value, true);
+    if (isError) {
+      return data;
+    }
+    return null;
+  },
 });
 
 /**
@@ -138,7 +146,6 @@ export async function validateLoginForm(
 export async function loginAction(prev: unknown, formData: FormData) {
   try {
     const validatedData = await serverValidate(formData);
-
     const { user } = await validateLoginForm(validatedData);
     if (!user) {
       return;

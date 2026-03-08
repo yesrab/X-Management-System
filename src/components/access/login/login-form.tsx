@@ -31,13 +31,6 @@ export default function LoginForm() {
     transform: useTransform((baseForm) => mergeForm(baseForm, state!), [state]),
     validators: {
       onSubmit: loginSchema,
-      onSubmitAsync: async ({ value }) => {
-        const { isError, data } = await validateLoginForm(value, true);
-        if (isError) {
-          return data;
-        }
-        return null;
-      },
     },
   });
 
