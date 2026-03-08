@@ -52,16 +52,17 @@ const serverValidate = createServerValidate({
 
 /**
  * Creates a standardized authentication error response
+ * @param overrideMessage - Optional custom error message to override the default authentication error message
  * @returns Formatted authentication error object
  */
-function createAuthError(): ValidationResult {
+function createAuthError(overrideMessage?: string): ValidationResult {
   return {
     isError: true,
     data: {
       form: INVALID_DATA_MESSAGE,
       fields: {
         // email: [{ message: AUTH_ERROR_MESSAGE }],
-        password: [{ message: AUTH_ERROR_MESSAGE }],
+        password: [{ message: overrideMessage || AUTH_ERROR_MESSAGE }],
       },
     },
     user: null,
@@ -79,47 +80,59 @@ export async function validateLoginForm(
   isClient = false,
 ): Promise<ValidationResult> {
   // Attempt to find user by email
-  const user = await prisma.user.findUnique({
-    where: { email: processedData.email },
-    select: {
-      id: true,
-      email: true,
-      passwordHash: true,
-    },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: processedData.email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+      },
+    });
 
-  if (!user) {
-    !isClient &&
-      logger.warn(
-        'Login attempt with non-existent email: %s',
-        processedData.email,
-      );
-    return createAuthError();
+    if (!user) {
+      !isClient &&
+        logger.warn(
+          'Login attempt with non-existent email: %s',
+          processedData.email,
+        );
+      return createAuthError();
+    }
+
+    // Verify password hash
+    const isPasswordValid = await verifyPassword(
+      user.passwordHash,
+      processedData.password,
+    );
+
+    if (!isPasswordValid) {
+      !isClient &&
+        logger.warn(
+          'Invalid password attempt for email: %s',
+          processedData.email,
+        );
+      return createAuthError();
+    }
+
+    // Omit passwordHash from the returned user object
+    const { passwordHash, ...userWithoutPassword } = user;
+
+    logger.info('User authenticated successfully: %s', user.email);
+    return {
+      isError: false,
+      data: processedData,
+      user: userWithoutPassword,
+    };
+  } catch (error) {
+    logger.error(
+      { error },
+      'Error during login validation for email: %s',
+      processedData.email,
+    );
+    return createAuthError(
+      'An unexpected error occurred. Please try again later.',
+    );
   }
-
-  // Verify password hash
-  const isPasswordValid = await verifyPassword(
-    user.passwordHash,
-    processedData.password,
-  );
-
-  if (!isPasswordValid) {
-    !isClient &&
-      logger.warn(
-        'Invalid password attempt for email: %s',
-        processedData.email,
-      );
-    return createAuthError();
-  }
-
-  // Omit passwordHash from the returned user object
-  const { passwordHash, ...userWithoutPassword } = user;
-
-  return {
-    isError: false,
-    data: processedData,
-    user: userWithoutPassword,
-  };
 }
 
 export async function loginAction(prev: unknown, formData: FormData) {
@@ -131,6 +144,7 @@ export async function loginAction(prev: unknown, formData: FormData) {
       return;
       // redirect('/login?error=login_failed');
     }
+    logger.info('User logged in successfully: %s', user.email);
     await createSession(user.id!.toString());
     redirect('/dashboard');
   } catch (error) {
