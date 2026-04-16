@@ -1,0 +1,24 @@
+{
+  "name": "prisma-client",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/prisma-client/src",
+  "projectType": "library",
+  "targets": {
+    "generate": {
+      "command": "pnpm dlx prisma generate",
+      "options": { "cwd": "{workspaceRoot}" }
+    },
+    "migrate-deploy": {
+      "command": "pnpm dlx prisma migrate deploy",
+      "options": { "cwd": "{workspaceRoot}" }
+    },
+    "migrate-dev": {
+      "command": "pnpm dlx prisma migrate dev",
+      "options": { "cwd": "{workspaceRoot}" }
+    },
+    "seed": {
+      "command": "pnpm dlx prisma db seed",
+      "options": { "cwd": "{workspaceRoot}" }
+    }
+  }
+}

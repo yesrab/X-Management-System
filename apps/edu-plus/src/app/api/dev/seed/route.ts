@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { main } from '@/prisma/seed';
+import { seedMain as main } from '@x-mgmt/prisma-client';
 import logger from '@/lib/logger';
 
 const isProduction = process.env.NODE_ENV === 'production';

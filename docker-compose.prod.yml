@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-eduplus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-eduplus_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-eduplus}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-eduplus}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  edu-plus:
+    build:
+      context: .
+      dockerfile: apps/edu-plus/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-eduplus}:${POSTGRES_PASSWORD:-eduplus_secret}@postgres:5432/${POSTGRES_DB:-eduplus}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - EDUCORE_URL=http://edu-core:3001
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      edu-core:
+        condition: service_started
+
+  edu-core:
+    build:
+      context: .
+      dockerfile: apps/edu-core/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-eduplus}:${POSTGRES_PASSWORD:-eduplus_secret}@postgres:5432/${POSTGRES_DB:-eduplus}
+      - EDUCORE_PORT=3001
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pg_data:

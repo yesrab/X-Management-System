@@ -9,10 +9,10 @@ const prismaDb = process.env.POSTGRES_URL || databaseUrl;
 const dbToUse = isProduction ? prismaDb : databaseUrl;
 
 export default defineConfig({
-  schema: './src/prisma/schema.prisma',
+  schema: './libs/prisma-client/prisma/schema.prisma',
   migrations: {
-    path: './src/prisma/migrations',
-    seed: 'tsx ./src/prisma/seed.ts',
+    path: './libs/prisma-client/prisma/migrations',
+    seed: 'tsx ./libs/prisma-client/prisma/seed.ts',
   },
   datasource: {
     url: dbToUse,
