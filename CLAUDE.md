@@ -41,6 +41,10 @@ docker compose -f docker-compose.dev.yml up --build   # Demo: Next.js + NestJS (
 docker compose -f docker-compose.prod.yml up --build   # Prod: Next.js + NestJS + PostgreSQL
 ```
 
+### Vercel
+
+EduPlus (Next.js) is the only Vercel-deployable app. `vercel.json` at the repo root drives the build (`pnpm nx build edu-plus`); the Vercel project Root Directory should stay at `./`. EduCore (NestJS) is not deployed via Vercel — point EduPlus at it via the `EDUCORE_URL` env var. Migrations are not part of the build target; run `pnpm prisma:migrate:deploy` as a separate release step.
+
 ## Architecture
 
 ### Monorepo Communication
@@ -130,7 +134,8 @@ Package name: `@x-mgmt/prisma-client`. Exports:
 - `tsconfig.base.json` — shared compiler options and `@x-mgmt/prisma-client` path mapping
 - `tsconfig.json` — project references wrapper
 - Each app/lib has its own `project.json` defining Nx targets (dev, build, start, lint)
-- Nx task dependencies: edu-plus and edu-core `build`/`dev` targets depend on `prisma-client:generate`
+- Nx task dependencies: edu-plus and edu-core `build`/`dev` targets depend on `prisma-client:generate` only. `prisma-client:migrate-deploy` is a standalone target invoked manually via `pnpm prisma:migrate:deploy`.
+- `prisma-client:generate` uses the locally-installed `prisma` binary (not `pnpm dlx prisma`) so Vercel and Docker builds don't refetch the package.
 
 ### Environment Variables
 
@@ -140,7 +145,7 @@ Required:
 
 Production/Docker:
 - `POSTGRES_URL` / `PRISMA_DATABASE_URL` — production database URLs
-- `EDUCORE_URL` — NestJS backend URL for proxy (default: `http://localhost:3001`)
+- `EDUCORE_URL` — NestJS backend URL for `/epi/*` proxy. When unset, `next.config.ts` emits no rewrite (so Vercel deploys without an EduCore backend won't try to proxy to localhost).
 - `EDUCORE_PORT` — NestJS listen port (default: `3001`)
 
 ### Node Version

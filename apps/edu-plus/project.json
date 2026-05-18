@@ -12,7 +12,7 @@
     "build": {
       "command": "next build",
       "options": { "cwd": "apps/edu-plus" },
-      "dependsOn": ["prisma-client:migrate-deploy", "prisma-client:generate"],
+      "dependsOn": ["prisma-client:generate"],
       "cache": true,
       "inputs": ["production", "^production"],
       "outputs": ["{projectRoot}/.next"]

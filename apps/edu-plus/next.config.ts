@@ -1,11 +1,14 @@
 import type { NextConfig } from 'next';
 
+const educoreUrl = process.env.EDUCORE_URL;
+
 const nextConfig: NextConfig = {
   async rewrites() {
+    if (!educoreUrl) return [];
     return [
       {
         source: '/epi/:path*',
-        destination: `${process.env.EDUCORE_URL || 'http://localhost:3001'}/epi/:path*`,
+        destination: `${educoreUrl}/epi/:path*`,
       },
     ];
   },

@@ -5,19 +5,25 @@
   "projectType": "library",
   "targets": {
     "generate": {
-      "command": "pnpm dlx prisma generate",
-      "options": { "cwd": "{workspaceRoot}" }
+      "command": "prisma generate",
+      "options": { "cwd": "{workspaceRoot}" },
+      "cache": true,
+      "inputs": [
+        "{workspaceRoot}/libs/prisma-client/prisma/schema.prisma",
+        "{workspaceRoot}/prisma.config.ts"
+      ],
+      "outputs": ["{workspaceRoot}/libs/prisma-client/src/generated"]
     },
     "migrate-deploy": {
-      "command": "pnpm dlx prisma migrate deploy",
+      "command": "prisma migrate deploy",
       "options": { "cwd": "{workspaceRoot}" }
     },
     "migrate-dev": {
-      "command": "pnpm dlx prisma migrate dev",
+      "command": "prisma migrate dev",
       "options": { "cwd": "{workspaceRoot}" }
     },
     "seed": {
-      "command": "pnpm dlx prisma db seed",
+      "command": "prisma db seed",
       "options": { "cwd": "{workspaceRoot}" }
     }
   }

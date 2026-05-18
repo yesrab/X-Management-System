@@ -1,0 +1,8 @@
+apps/edu-core
+docker-compose.dev.yml
+docker-compose.prod.yml
+dbInit.sql
+tsc_output.txt
+.nx
+.next
+dist
