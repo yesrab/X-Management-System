@@ -4,30 +4,57 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-X Management System — a multi-tenant education management platform (schools, colleges, universities). Built with Next.js 16 App Router, Prisma 7 ORM, PostgreSQL, and Tailwind CSS 4. Uses pnpm as the package manager.
+X Management System — a multi-tenant education management platform (schools, colleges, universities). Nx monorepo with two applications and a shared library. Uses pnpm as the package manager.
+
+### Workspace Structure
+
+```
+apps/edu-plus/         Next.js 16 App Router frontend + edge backend (port 3000)
+apps/edu-core/         NestJS 11 sustained backend for prolonged tasks (port 3001)
+libs/prisma-client/    Shared Prisma library (@x-mgmt/prisma-client)
+```
 
 ## Commands
 
 ```bash
-pnpm dev              # Start Next.js dev server (localhost:3000)
-pnpm build            # Run Prisma migrate deploy + generate + next build
-pnpm lint             # ESLint (flat config, next/core-web-vitals + typescript)
-pnpm start            # Start production server (requires prior build)
+# Development (2 separate Nx commands, DB URL from env)
+pnpm dev:edu-plus          # Next.js dev server (localhost:3000)
+pnpm dev:edu-core          # NestJS watch mode (localhost:3001)
+pnpm dev                   # Both in parallel
 
-# Prisma
-pnpm dlx prisma migrate dev          # Create/apply dev migrations
-pnpm dlx prisma generate             # Regenerate Prisma client
-pnpm dlx prisma db seed              # Seed database (runs tsx ./src/prisma/seed.ts)
-pnpm dlx prisma migrate deploy       # Apply migrations (production)
+# Build
+pnpm build                 # Build all apps (auto-runs prisma generate)
+npx nx build edu-plus      # Build Next.js only
+npx nx build edu-core      # Build NestJS only
+
+# Lint
+pnpm lint                  # Lint all projects
+
+# Prisma (via Nx targets on prisma-client lib)
+pnpm prisma:generate       # Regenerate Prisma client
+pnpm prisma:migrate:dev    # Create/apply dev migrations
+pnpm prisma:migrate:deploy # Apply migrations (production)
+pnpm prisma:seed           # Seed database
+
+# Docker
+docker compose -f docker-compose.dev.yml up --build   # Demo: Next.js + NestJS (DB from env)
+docker compose -f docker-compose.prod.yml up --build   # Prod: Next.js + NestJS + PostgreSQL
 ```
 
 ## Architecture
+
+### Monorepo Communication
+
+- **Next.js frontend -> Next.js backend**: normal `/api` routes (unchanged)
+- **Next.js -> NestJS**: `/epi/:path*` routes, proxied via Next.js `rewrites()` in `apps/edu-plus/next.config.ts` to `${EDUCORE_URL}/epi/:path*`
+- **NestJS global prefix**: `epi` (set in `apps/edu-core/src/main.ts`) — all NestJS endpoints live under `/epi/...`
+- **Shared data layer**: both apps import from `@x-mgmt/prisma-client` (resolved via tsconfig paths in each app)
 
 ### Multi-Tenant RBAC Data Model
 
 The system is organization-scoped (multi-tenant). The permission chain works as:
 
-**Organization → Policy → FeatureCollection → CollectionFeatureMap → ModuleFeature**
+**Organization -> Policy -> FeatureCollection -> CollectionFeatureMap -> ModuleFeature**
 
 - `User` is a global identity (email + passwordHash via argon2id)
 - `OrganizationMembership` links a User to an Organization with a specific UserType and status
@@ -37,29 +64,52 @@ The system is organization-scoped (multi-tenant). The permission chain works as:
 
 ### Prisma Configuration
 
-- Schema lives at `src/prisma/schema.prisma` (not the default `prisma/` root)
-- Migrations directory: `src/prisma/migrations/`
-- Generated client output: `src/generated/prisma/` (imported as `@/generated/prisma/client`)
-- Config file: `prisma.config.ts` — uses `DATABASE_URL` locally, `POSTGRES_URL` in production
+- Schema: `libs/prisma-client/prisma/schema.prisma`
+- Migrations: `libs/prisma-client/prisma/migrations/`
+- Seed script: `libs/prisma-client/prisma/seed.ts`
+- Generated client: `libs/prisma-client/src/generated/` (gitignored, regenerate with `pnpm prisma:generate`)
+- Root config: `prisma.config.ts` — uses `DATABASE_URL` locally, `POSTGRES_URL` in production
 - Uses `@prisma/adapter-pg` (pg driver adapter) with `@prisma/extension-accelerate`
-- Preview feature enabled: `relationJoins`
+- Preview feature: `relationJoins`
 
-### App Router Layout
+### EduPlus (Next.js) — `apps/edu-plus/`
 
 Three route groups with separate root layouts:
 
 - `(Landing)` — public marketing pages at `/`
-- `(access)` — auth flows at `/access/login`, `/access/signup`
-- `(admin)` — authenticated dashboard at `/admin/dashboard` (has sidebar + notification drawer)
+- `(access)` — auth flows at `/login`, `/signup`
+- `(admin)` — authenticated dashboard at `/dashboard` (has sidebar + notification drawer)
+
+Thin re-export wrappers in `apps/edu-plus/src/lib/` (prisma.ts, crypto.ts, logger.ts) delegate to `@x-mgmt/prisma-client`, preserving `@/lib/*` imports across all existing components. When adding new code in edu-plus, use `@/lib/prisma`, `@/lib/crypto`, `@/lib/logger` — they re-export from the shared lib.
+
+Config files specific to edu-plus: `next.config.ts`, `postcss.config.mjs`, `components.json`, `eslint.config.mjs`, `tsconfig.json`.
+
+### EduCore (NestJS) — `apps/edu-core/`
+
+- Built with webpack + webpack-node-externals (externalizes native node modules like argon2)
+- Custom webpack config: `apps/edu-core/webpack.config.js` — resolves `@x-mgmt/prisma-client` via alias
+- Global PrismaModule wraps the shared prisma instance for dependency injection
+- Health endpoint: `GET /epi/health`
+- Config files: `nest-cli.json`, `webpack.config.js`, `tsconfig.json`, `project.json`
+
+### Shared Library — `libs/prisma-client/`
+
+Package name: `@x-mgmt/prisma-client`. Exports:
+- `prisma` — singleton Prisma client instance (PrismaPg adapter + Accelerate extension)
+- `DbClient` — type alias for the extended Prisma client
+- `hashPassword`, `verifyPassword` — argon2id wrappers
+- `createLogger(appName)` — pino logger factory (pretty in dev, JSON in prod)
+- `seedMain` — database seed entry point
+- All Prisma-generated types, enums, and model types
 
 ### Auth Flow
 
-- Login uses **TanStack React Form** with Zod validation (shared schema in `src/components/access/login/login-form-options.ts`)
-- Server action in `src/app/(access)/login/action.ts` performs dual client/server validation via `createServerValidate`
-- Password hashing: argon2id via `@node-rs/argon2` (`src/lib/crypto.ts`)
-- Sessions: JWT (HS256) via `jose`, stored as httpOnly cookie (`src/lib/sessions.ts`). Secret from `SESSION_SECRET` env var.
+- Login uses **TanStack React Form** with Zod validation (schema in `apps/edu-plus/src/components/access/login/login-form-options.ts`)
+- Server action in `apps/edu-plus/src/app/(access)/login/action.ts` performs dual client/server validation via `createServerValidate`
+- Password hashing: argon2id via `@node-rs/argon2` (`libs/prisma-client/src/crypto.ts`)
+- Sessions: JWT (HS256) via `jose`, stored as httpOnly cookie (`apps/edu-plus/src/lib/sessions.ts`). Secret from `SESSION_SECRET` env var.
 
-### API Routes
+### API Routes (EduPlus)
 
 - `POST /api/access/logout` — session deletion
 - `POST /api/dev/seed` — database reset + seed (blocked in prod without secret)
@@ -67,11 +117,20 @@ Three route groups with separate root layouts:
 
 ### Key Libraries & Patterns
 
-- **UI components**: shadcn/ui (new-york style) with Radix UI primitives, located in `src/components/ui/`
-- **Path alias**: `@/*` maps to `./src/*`
-- **Logging**: pino (pretty-printed in dev, JSON in prod) — `src/lib/logger.ts`
+- **UI components**: shadcn/ui (new-york style) with Radix UI primitives — `apps/edu-plus/src/components/ui/`
+- **Path aliases**: `@/*` maps to `./src/*` (edu-plus only). `@x-mgmt/prisma-client` is the shared lib alias (both apps).
+- **Logging**: pino via `createLogger(appName)` factory — `libs/prisma-client/src/logger.ts`
 - **Forms**: TanStack React Form with Next.js server actions integration (`@tanstack/react-form-nextjs`)
 - **Theming**: next-themes with system default, class-based strategy
+- **Styling**: Tailwind CSS v4, configured via CSS-first approach in `apps/edu-plus/src/app/globals.css` (no tailwind.config file)
+
+### Nx Configuration
+
+- `nx.json` — workspace config with target defaults (build cached, dev not cached, build depends on `^build`)
+- `tsconfig.base.json` — shared compiler options and `@x-mgmt/prisma-client` path mapping
+- `tsconfig.json` — project references wrapper
+- Each app/lib has its own `project.json` defining Nx targets (dev, build, start, lint)
+- Nx task dependencies: edu-plus and edu-core `build`/`dev` targets depend on `prisma-client:generate`
 
 ### Environment Variables
 
@@ -79,8 +138,10 @@ Required:
 - `DATABASE_URL` — PostgreSQL connection string (used in dev + Prisma migrations)
 - `SESSION_SECRET` — JWT signing key (falls back to `'danger'` if unset)
 
-Production-only:
+Production/Docker:
 - `POSTGRES_URL` / `PRISMA_DATABASE_URL` — production database URLs
+- `EDUCORE_URL` — NestJS backend URL for proxy (default: `http://localhost:3001`)
+- `EDUCORE_PORT` — NestJS listen port (default: `3001`)
 
 ### Node Version
 

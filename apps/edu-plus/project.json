@@ -1,0 +1,31 @@
+{
+  "name": "edu-plus",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/edu-plus/src",
+  "projectType": "application",
+  "targets": {
+    "dev": {
+      "command": "next dev --port 3000",
+      "options": { "cwd": "apps/edu-plus" },
+      "dependsOn": ["prisma-client:generate"]
+    },
+    "build": {
+      "command": "next build",
+      "options": { "cwd": "apps/edu-plus" },
+      "dependsOn": ["prisma-client:migrate-deploy", "prisma-client:generate"],
+      "cache": true,
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/.next"]
+    },
+    "start": {
+      "command": "next start --port 3000",
+      "options": { "cwd": "apps/edu-plus" },
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "command": "eslint",
+      "options": { "cwd": "apps/edu-plus" },
+      "cache": true
+    }
+  }
+}

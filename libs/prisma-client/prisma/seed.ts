@@ -1,9 +1,11 @@
-import { hashPassword } from '@/lib/crypto';
-import { FeatureType, HttpMethod } from '@/generated/prisma/client';
+import { hashPassword } from '../src/crypto';
+import { FeatureType, HttpMethod } from '../src/generated/client';
 import 'dotenv/config';
 
-import { prisma } from '@/lib/prisma';
-import logger from '@/lib/logger';
+import { prisma } from '../src/prisma';
+import { createLogger } from '../src/logger';
+
+const logger = createLogger('PrismaSeed');
 
 /* =====================================================
    CLEAN DATABASE

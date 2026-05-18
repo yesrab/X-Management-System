@@ -1,0 +1,31 @@
+{
+  "name": "edu-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/edu-core/src",
+  "projectType": "application",
+  "targets": {
+    "dev": {
+      "command": "nest start --watch --entryFile main",
+      "options": { "cwd": "apps/edu-core" },
+      "dependsOn": ["prisma-client:generate"]
+    },
+    "build": {
+      "command": "nest build",
+      "options": { "cwd": "apps/edu-core" },
+      "dependsOn": ["prisma-client:generate"],
+      "cache": true,
+      "inputs": ["production", "^production"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "start": {
+      "command": "node dist/main.js",
+      "options": { "cwd": "apps/edu-core" },
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "command": "eslint",
+      "options": { "cwd": "apps/edu-core" },
+      "cache": true
+    }
+  }
+}

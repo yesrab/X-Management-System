@@ -15,10 +15,15 @@
 
 # next.js
 /.next/
+apps/*/.next/
 /out/
 
 # production
 /build
+dist/
+
+# Nx
+.nx
 
 # misc
 .DS_Store
@@ -42,3 +47,4 @@ next-env.d.ts
 
 src/generated/prisma
 /generated/prisma
+libs/prisma-client/src/generated

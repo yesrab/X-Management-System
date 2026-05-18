@@ -1,10 +1,10 @@
 import pino from 'pino';
 
-const logger =
-  process.env.NODE_ENV === 'development'
+export function createLogger(appName: string) {
+  return process.env.NODE_ENV === 'development'
     ? pino(
         {
-          name: 'X-Management-System',
+          name: appName,
           level: 'debug',
         },
         pino.transport({
@@ -17,8 +17,7 @@ const logger =
         }),
       )
     : pino({
-        name: 'X-Management-System',
+        name: appName,
         level: 'info',
       });
-
-export default logger;
+}
