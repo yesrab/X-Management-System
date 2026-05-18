@@ -2,6 +2,7 @@
   "name": "x-management-system",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.31.0",
   "scripts": {
     "dev:edu-plus": "nx dev edu-plus",
     "dev:edu-core": "nx dev edu-core",
