@@ -3,11 +3,24 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  n-downloader instrument visual language.
+  Warm, gridded, industrial. Hard 1px borders, 0 radius, mono everywhere.
+  Color is signal, not decoration. This token layer is the single source of truth.
+*/
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* instrument body (landing / auth page background) */
+  --color-body: var(--body);
+  /* dashboard workbench */
+  --color-workbench: var(--workbench);
+
+  /* mono everywhere, including headings */
+  --font-sans: var(--font-jetbrains-mono);
+  --font-mono: var(--font-jetbrains-mono);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -37,82 +50,134 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* signal colors — same in light and dark; they are signals, not surfaces */
+  --color-signal-red: var(--signal-red);
+  --color-signal-yellow: var(--signal-yellow);
+  --color-signal-teal: var(--signal-teal);
+  --color-signal-clay: var(--signal-clay);
+
+  /* theme-invariant ink/paper — for text drawn on fixed signal fills */
+  --color-ink: #171512;
+  --color-paper: #fffdf8;
+
+  /* radius is 0 everywhere — non-negotiable */
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
+
+  /* borders over shadows: neutralize the elevation scale (focus rings are unaffected) */
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0;
+
+  /* surfaces */
+  --body: #f7f4ef; /* instrument body */
+  --background: #eee9df; /* dashboard workbench */
+  --workbench: #eee9df;
+  --foreground: #171512; /* ink */
+  --card: #f8f5ed; /* raised panel */
+  --card-foreground: #171512;
+  --popover: #f8f5ed;
+  --popover-foreground: #171512;
+
+  --primary: #171512; /* ink fill */
+  --primary-foreground: #f7f4ef;
+  --secondary: #d8cfbf; /* track / fill neutral */
+  --secondary-foreground: #171512;
+  --muted: #e2dacb; /* subtle fill */
+  --muted-foreground: #635d53;
+  --accent: #d8cfbf;
+  --accent-foreground: #171512;
+
+  --destructive: #d95c3d; /* warning clay */
+
+  --border: #cfc5b5;
+  --input: #cfc5b5;
+  --ring: #171512;
+
+  /* charts use the signal palette + neutral ink */
+  --chart-1: #ce3f21;
+  --chart-2: #5bb3a7;
+  --chart-3: #efb84f;
+  --chart-4: #635d53;
+  --chart-5: #171512;
+
+  /* sidebar = the workbench control strip */
+  --sidebar: #eee9df;
+  --sidebar-foreground: #171512;
+  --sidebar-primary: #171512;
+  --sidebar-primary-foreground: #f7f4ef;
+  --sidebar-accent: #d8cfbf;
+  --sidebar-accent-foreground: #171512;
+  --sidebar-border: #cfc5b5;
+  --sidebar-ring: #171512;
+
+  /* signal colors */
+  --signal-red: #ce3f21; /* action */
+  --signal-yellow: #efb84f; /* data */
+  --signal-teal: #5bb3a7; /* secondary / context */
+  --signal-clay: #d95c3d; /* warning / destructive */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --body: #171512;
+  --background: #171512;
+  --workbench: #171512;
+  --foreground: #f7f4ef;
+  --card: #24211c;
+  --card-foreground: #f7f4ef;
+  --popover: #24211c;
+  --popover-foreground: #f7f4ef;
+
+  --primary: #f7f4ef;
+  --primary-foreground: #171512;
+  --secondary: #3a342b;
+  --secondary-foreground: #f7f4ef;
+  --muted: #3a342b;
+  --muted-foreground: #d8cfbf;
+  --accent: #3a342b;
+  --accent-foreground: #f7f4ef;
+
+  --destructive: #d95c3d;
+
+  --border: #3a342b;
+  --input: #3a342b;
+  --ring: #efb84f;
+
+  --chart-1: #ce3f21;
+  --chart-2: #5bb3a7;
+  --chart-3: #efb84f;
+  --chart-4: #d8cfbf;
+  --chart-5: #f7f4ef;
+
+  --sidebar: #171512;
+  --sidebar-foreground: #f7f4ef;
+  --sidebar-primary: #f7f4ef;
+  --sidebar-primary-foreground: #171512;
+  --sidebar-accent: #3a342b;
+  --sidebar-accent-foreground: #f7f4ef;
+  --sidebar-border: #3a342b;
+  --sidebar-ring: #efb84f;
+
+  /* signal colors are identical in dark mode */
+  --signal-red: #ce3f21;
+  --signal-yellow: #efb84f;
+  --signal-teal: #5bb3a7;
+  --signal-clay: #d95c3d;
 }
 
 @layer base {
@@ -120,6 +185,54 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background: var(--body);
+    color: var(--foreground);
+    font-family: var(--font-mono);
   }
+}
+
+@layer utilities {
+  /* landing-only hard offset shadows (no blur) */
+  .shadow-hard {
+    box-shadow: 8px 8px 0 0 var(--foreground);
+  }
+  .shadow-hard-soft {
+    box-shadow: 8px 8px 0 0 color-mix(in srgb, var(--foreground) 18%, transparent);
+  }
+  /* landing-only faint grid overlay — the single tolerated gradient */
+  .bg-grid {
+    background-image: linear-gradient(
+        to right,
+        color-mix(in srgb, var(--foreground) 7%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--foreground) 7%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 52px 52px;
+    /*
+      Dissolve the grid organically — a top-anchored fade unioned with a few
+      off-center blobs so the edge is irregular (a spilled-puddle shape, no
+      clean rectangle). Mostly gone by the middle of the surface.
+    */
+    --grid-fade: linear-gradient(to bottom, #000 0%, #000 18%, transparent 60%),
+      radial-gradient(40% 28% at 22% 44%, #000 0%, transparent 70%),
+      radial-gradient(46% 32% at 74% 38%, #000 0%, transparent 70%),
+      radial-gradient(32% 24% at 52% 56%, #000 0%, transparent 74%);
+    -webkit-mask-image: var(--grid-fade);
+    mask-image: var(--grid-fade);
+    mask-composite: add;
+  }
+}
+
+/*
+  Square everything. Unlayered so it wins over Tailwind's layered radius
+  utilities (incl. rounded-full on badges/avatars). Radius is 0, app-wide.
+*/
+*,
+*::before,
+*::after {
+  border-radius: 0;
 }

@@ -25,12 +25,14 @@ import { NavMain } from "@/components/navigation/nav-main";
 import { NavProjects } from "@/components/navigation/nav-projects";
 import { NavUser } from "@/components/navigation/nav-user";
 import { TeamSwitcher } from "@/components/navigation/team-switcher";
+import { SidebarTelemetry } from "@/components/navigation/sidebar-telemetry";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 
 // This is sample data.
@@ -321,10 +323,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <TeamSwitcher teams={data.organizations} />
       </SidebarHeader>
+      <SidebarSeparator className='mx-0' />
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <SidebarSeparator className='mx-0' />
         <NavProjects projects={data.quickActions} />
+        <SidebarTelemetry />
       </SidebarContent>
+      <SidebarSeparator className='mx-0' />
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>

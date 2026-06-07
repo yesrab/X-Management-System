@@ -3,10 +3,7 @@
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "sharedGlobals": ["{workspaceRoot}/.env"],
-    "production": [
-      "default",
-      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)"
-    ]
+    "production": ["default", "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)"]
   },
   "targetDefaults": {
     "build": {
@@ -19,5 +16,6 @@
     "dev": {
       "cache": false
     }
-  }
+  },
+  "analytics": true
 }
