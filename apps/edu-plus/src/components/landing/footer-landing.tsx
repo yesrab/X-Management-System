@@ -2,19 +2,19 @@ import Link from "next/link";
 
 export default function FooterLanding() {
   return (
-    <footer className='border-t py-5 bg-muted/20 pr-5 pl-5'>
-      <div className='flex flex-col md:flex-row justify-between items-center gap-6'>
-        <p className='text-sm text-muted-foreground'>
-          © 2026 X Management Systems. Built with Next.js 16.
+    <footer className="border-t border-border bg-body px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 md:flex-row">
+        <p className="text-xs text-muted-foreground">
+          © 2026 X Management System — Built with Next.js 16.
         </p>
-        <div className='flex gap-6 text-sm text-muted-foreground'>
-          <Link href='#' className='hover:text-foreground'>
+        <div className="flex gap-6 text-xs uppercase tracking-wide text-muted-foreground">
+          <Link href="#" className="transition-colors hover:text-foreground">
             Terms
           </Link>
-          <Link href='#' className='hover:text-foreground'>
+          <Link href="#" className="transition-colors hover:text-foreground">
             Privacy
           </Link>
-          <Link href='#' className='hover:text-foreground'>
+          <Link href="#" className="transition-colors hover:text-foreground">
             Support
           </Link>
         </div>

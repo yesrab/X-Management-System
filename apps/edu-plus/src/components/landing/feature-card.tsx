@@ -1,5 +1,3 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
 export default function FeatureCard({
   icon,
   title,
@@ -10,14 +8,12 @@ export default function FeatureCard({
   description: string;
 }) {
   return (
-    <Card className='hover:shadow-lg transition-all hover:-translate-y-1'>
-      <CardHeader>
-        <div className='mb-4'>{icon}</div>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className='text-muted-foreground leading-relaxed'>{description}</p>
-      </CardContent>
-    </Card>
+    <div className="bg-card p-6">
+      <div className="flex h-9 w-9 items-center justify-center border border-foreground/20 text-foreground">
+        {icon}
+      </div>
+      <h3 className="mt-4 text-base font-semibold">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+    </div>
   );
 }

@@ -41,10 +41,13 @@ export default function LoginForm() {
       className='p-6 md:p-8'
     >
       <FieldGroup>
-        <div className='flex flex-col items-center gap-2 text-center'>
-          <h1 className='text-2xl font-bold'>Welcome back</h1>
-          <p className='text-muted-foreground text-balance'>
-            Login to your EDU+ account
+        <div className='flex flex-col gap-1'>
+          <p className='text-[10px] uppercase tracking-wide text-signal-red'>
+            Sign in
+          </p>
+          <h1 className='text-2xl font-semibold'>Welcome back</h1>
+          <p className='text-muted-foreground text-sm'>
+            Login to your X Management account
           </p>
         </div>
         <form.Field name='email' defaultValue=''>
@@ -120,7 +123,6 @@ export default function LoginForm() {
           {([canSubmit, isSubmitting, isPristine]) => (
             <Field>
               <Button
-                className='hover:cursor-grab'
                 type='submit'
                 disabled={!canSubmit || isPristine}
               >

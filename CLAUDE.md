@@ -78,6 +78,8 @@ The system is organization-scoped (multi-tenant). The permission chain works as:
 
 ### EduPlus (Next.js) — `apps/edu-plus/`
 
+@stylePhilosophy.md
+
 Three route groups with separate root layouts:
 
 - `(Landing)` — public marketing pages at `/`
