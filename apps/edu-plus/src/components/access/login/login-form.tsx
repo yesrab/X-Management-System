@@ -32,6 +32,10 @@ export default function LoginForm() {
     validators: {
       onSubmit: loginSchema,
     },
+    defaultValues: {
+      email: '',
+      password: '',
+    },
   });
 
   return (
@@ -50,7 +54,7 @@ export default function LoginForm() {
             Login to your X Management account
           </p>
         </div>
-        <form.Field name='email' defaultValue=''>
+        <form.Field name='email'>
           {(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
@@ -73,7 +77,7 @@ export default function LoginForm() {
             );
           }}
         </form.Field>
-        <form.Field name='password' defaultValue=''>
+        <form.Field name='password'>
           {(field) => {
             const isInvalid =
               field.state.meta.isTouched && !field.state.meta.isValid;
